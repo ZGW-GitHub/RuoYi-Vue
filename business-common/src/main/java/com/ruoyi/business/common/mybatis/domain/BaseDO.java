@@ -20,8 +20,12 @@ package com.ruoyi.business.common.mybatis.domain;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -29,23 +33,29 @@ import java.time.LocalDateTime;
  * @date 2023/6/12 17:38
  */
 @Data
-public class BaseDO {
+public class BaseDO implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 1L;
 
 	@TableId
 	private Long id;
 
+	@TableLogic(value = "0", delval = "id")
 	private Long deleted;
 
 	@TableField(fill = FieldFill.INSERT)
 	private Long creator;
 
 	@TableField(fill = FieldFill.INSERT)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createTime;
 
 	@TableField(fill = FieldFill.UPDATE)
 	private Long updater;
 
 	@TableField(fill = FieldFill.UPDATE)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updateTime;
 
 }
