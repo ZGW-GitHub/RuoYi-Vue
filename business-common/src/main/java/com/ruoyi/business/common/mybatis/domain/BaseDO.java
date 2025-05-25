@@ -34,7 +34,7 @@ public class BaseDO {
 	@TableId
 	private Long id;
 
-	private boolean deleted;
+	private Long deleted;
 
 	@TableField(fill = FieldFill.INSERT)
 	private Long creator;
