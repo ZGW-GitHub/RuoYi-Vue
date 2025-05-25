@@ -23,6 +23,12 @@
             <artifactId>spring-context-support</artifactId>
         </dependency>
 
+        <!-- Spring Test 模块 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
         <!-- SpringWeb模块 -->
         <dependency>
             <groupId>org.springframework</groupId>
