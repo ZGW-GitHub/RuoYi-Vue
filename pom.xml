@@ -234,6 +234,13 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+            <!-- Business: Template -->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>business-template</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -245,6 +252,7 @@
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
         <module>business-common</module>
+        <module>business-template</module>
     </modules>
     <packaging>pom</packaging>
 
