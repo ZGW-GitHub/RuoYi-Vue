@@ -33,7 +33,7 @@ public class RequestUtil {
 
 	public static final List<String> WHITE_LIST = Arrays.asList(
 			"/favicon.ico",
-			"/assets/**",
+			"/static/**",
 			"/**/**.js",
 			"/**/**.css",
 			"/**/**.html",

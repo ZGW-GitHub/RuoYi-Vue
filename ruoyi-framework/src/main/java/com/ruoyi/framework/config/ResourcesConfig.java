@@ -1,6 +1,11 @@
 package com.ruoyi.framework.config;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import cn.hutool.core.util.StrUtil;
+import com.ruoyi.business.framework.web.component.interceptor.TimingHandlerInterceptor;
+import com.ruoyi.business.framework.web.util.RequestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +30,9 @@ public class ResourcesConfig implements WebMvcConfigurer
 {
     @Autowired
     private RepeatSubmitInterceptor repeatSubmitInterceptor;
+
+    @Autowired
+    private TimingHandlerInterceptor timingHandlerInterceptor;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry)
@@ -54,7 +62,15 @@ public class ResourcesConfig implements WebMvcConfigurer
     @Override
     public void addInterceptors(InterceptorRegistry registry)
     {
-        registry.addInterceptor(repeatSubmitInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(timingHandlerInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(RequestUtil.WHITE_LIST)
+                .order(1);
+
+        registry.addInterceptor(repeatSubmitInterceptor)
+                .excludePathPatterns(RequestUtil.WHITE_LIST)
+                .addPathPatterns("/**")
+                .order(2);
     }
 
     /**

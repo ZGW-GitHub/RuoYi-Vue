@@ -59,6 +59,12 @@
             <artifactId>ruoyi-system</artifactId>
         </dependency>
 
+        <!-- 业务：Framework -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>business-framework</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
