@@ -15,11 +15,6 @@
         framework业务模块
     </description>
 
-    <properties>
-        <hutool.version>5.8.37</hutool.version>
-        <transmittable-thread-local.version>2.14.3</transmittable-thread-local.version>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -31,7 +26,6 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>transmittable-thread-local</artifactId>
-            <version>${transmittable-thread-local.version}</version>
         </dependency>
 
         <!-- 工具：Lombok -->
@@ -44,7 +38,6 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
         </dependency>
 
     </dependencies>
