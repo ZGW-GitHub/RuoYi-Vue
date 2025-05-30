@@ -42,7 +42,7 @@ public class RequestContextHelper {
 
 		RequestContext requestContext = TTL.get();
 		if (requestContext != null) {
-			throw new RuntimeException("RequestContext 已存在");
+			log.error("[ 链路追踪 ] RequestContext create, RequestContext 已存在. currentContext: {}", requestContext);
 		}
 
 		requestContext = new RequestContext(traceId);
@@ -62,15 +62,15 @@ public class RequestContextHelper {
 	 * @return 子 RequestContext
 	 */
 	public static RequestContext startChildContext(RequestContext parentRequestContext, boolean mdcTrace) {
-		if (parentRequestContext == null) {
-			throw new RuntimeException("RequestContext 不存在");
-		}
-
-		String parentTraceId = parentRequestContext.getTraceId();
 		String childTraceId = MDCUtil.generateTraceId();
-		log.info("[ 链路追踪 ] RequestContext 派生. parentTraceId : {}, childTraceId : {}", parentTraceId, childTraceId);
 
-		RequestContext childRequestContext = createChildContext(parentRequestContext, childTraceId);
+		if (parentRequestContext == null) {
+            log.error("[ 链路追踪 ] RequestContext create, 父 RequestContext 不存在. childTraceId : {}", childTraceId);
+            return startContext(childTraceId, mdcTrace);
+        }
+
+		log.info("[ 链路追踪 ] RequestContext 派生. parentTraceId : {}, childTraceId : {}", parentRequestContext.getTraceId(), childTraceId);
+        RequestContext childRequestContext = createChildContext(parentRequestContext, childTraceId);
 
 		// set RequestContext to ThreadLocal
 		TTL.set(childRequestContext);
