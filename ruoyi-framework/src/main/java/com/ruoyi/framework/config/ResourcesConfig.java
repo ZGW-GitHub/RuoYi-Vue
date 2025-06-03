@@ -1,9 +1,7 @@
 package com.ruoyi.framework.config;
 
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import cn.hutool.core.util.StrUtil;
 import com.ruoyi.business.framework.web.component.interceptor.TimingHandlerInterceptor;
 import com.ruoyi.business.framework.web.util.RequestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
