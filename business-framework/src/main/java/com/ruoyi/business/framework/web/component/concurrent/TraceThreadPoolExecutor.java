@@ -50,23 +50,24 @@ public class TraceThreadPoolExecutor extends ThreadPoolExecutor {
 
 	@Override
 	public void execute(@NonNull final Runnable runnable) {
-		if (!RequestContextHelper.hasContext()) {
-			super.execute(runnable);
-		}
-
 		final RequestContext requestContext = RequestContextHelper.currentContext();
 
-		super.execute(() -> {
+		Runnable runnableWrap = () -> {
 			try {
-				RequestContext ignore = requestContext != null
-						? RequestContextHelper.startChildContext(requestContext, true)
-						: RequestContextHelper.startContext(MDCUtil.generateTraceId(), true);
+				RequestContext ignore = requestContext == null
+						? RequestContextHelper.startContext(MDCUtil.generateTraceId(), true)
+						: RequestContextHelper.startChildContext(requestContext, true);
 
 				runnable.run();
+			} catch (Exception e) {
+				log.error("Trace 线程池执行任务发生异常: {}", e.getMessage(), e);
+				throw e;
 			} finally {
 				RequestContextHelper.clear(true);
 			}
-		});
+		};
+
+		super.execute(runnableWrap);
 	}
 
 }

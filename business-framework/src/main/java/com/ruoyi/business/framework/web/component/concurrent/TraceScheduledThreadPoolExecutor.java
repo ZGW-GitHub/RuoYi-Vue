@@ -51,19 +51,18 @@ public class TraceScheduledThreadPoolExecutor extends ScheduledThreadPoolExecuto
 
 	@Override
 	public @Nonnull ScheduledFuture<?> schedule(@Nonnull Runnable runnable, long delay, @Nonnull TimeUnit unit) {
-		if (!RequestContextHelper.hasContext()) {
-			return super.schedule(runnable, delay, unit);
-		}
-
 		final RequestContext requestContext = RequestContextHelper.currentContext();
 
 		Runnable runnableWrap = () -> {
 			try {
-				RequestContext ignore = requestContext != null
-						? RequestContextHelper.startChildContext(requestContext, true)
-						: RequestContextHelper.startContext(MDCUtil.generateTraceId(), true);
+				RequestContext ignore = requestContext == null
+						? RequestContextHelper.startContext(MDCUtil.generateTraceId(), true)
+						: RequestContextHelper.startChildContext(requestContext, true);
 
 				runnable.run();
+			} catch (Exception e) {
+				log.error("Trace Scheduled 线程池执行任务发生异常: {}", e.getMessage(), e);
+				throw e;
 			} finally {
 				RequestContextHelper.clear(true);
 			}
@@ -73,19 +72,18 @@ public class TraceScheduledThreadPoolExecutor extends ScheduledThreadPoolExecuto
 
 	@Override
 	public @Nonnull ScheduledFuture<?> scheduleAtFixedRate(@Nonnull Runnable runnable, long initialDelay, long period, @Nonnull TimeUnit unit) {
-		if (!RequestContextHelper.hasContext()) {
-			return super.scheduleAtFixedRate(runnable, initialDelay, period, unit);
-		}
-
 		final RequestContext requestContext = RequestContextHelper.currentContext();
 
 		Runnable runnableWrap = () -> {
 			try {
-				RequestContext ignore = requestContext != null
-						? RequestContextHelper.startChildContext(requestContext, true)
-						: RequestContextHelper.startContext(MDCUtil.generateTraceId(), true);
+				RequestContext ignore = requestContext == null
+						? RequestContextHelper.startContext(MDCUtil.generateTraceId(), true)
+						: RequestContextHelper.startChildContext(requestContext, true);
 
 				runnable.run();
+			} catch (Exception e) {
+				log.error("Trace Scheduled 线程池执行任务发生异常: {}", e.getMessage(), e);
+				throw e;
 			} finally {
 				RequestContextHelper.clear(true);
 			}
@@ -95,19 +93,18 @@ public class TraceScheduledThreadPoolExecutor extends ScheduledThreadPoolExecuto
 
 	@Override
 	public @Nonnull ScheduledFuture<?> scheduleWithFixedDelay(@Nonnull Runnable runnable, long initialDelay, long delay, @Nonnull TimeUnit unit) {
-		if (!RequestContextHelper.hasContext()) {
-			return super.scheduleWithFixedDelay(runnable, initialDelay, delay, unit);
-		}
-
 		final RequestContext requestContext = RequestContextHelper.currentContext();
 
 		Runnable runnableWrap = () -> {
 			try {
-				RequestContext ignore = requestContext != null
-						? RequestContextHelper.startChildContext(requestContext, true)
-						: RequestContextHelper.startContext(MDCUtil.generateTraceId(), true);
+				RequestContext ignore = requestContext == null
+						? RequestContextHelper.startContext(MDCUtil.generateTraceId(), true)
+						: RequestContextHelper.startChildContext(requestContext, true);
 
 				runnable.run();
+			} catch (Exception e) {
+				log.error("Trace Scheduled 线程池执行任务发生异常: {}", e.getMessage(), e);
+				throw e;
 			} finally {
 				RequestContextHelper.clear(true);
 			}
@@ -117,19 +114,18 @@ public class TraceScheduledThreadPoolExecutor extends ScheduledThreadPoolExecuto
 
 	@Override
 	public @Nonnull <V> ScheduledFuture<V> schedule(@Nonnull Callable<V> callable, long delay, @Nonnull TimeUnit unit) {
-		if (!RequestContextHelper.hasContext()) {
-			return super.schedule(callable, delay, unit);
-		}
-
 		final RequestContext requestContext = RequestContextHelper.currentContext();
 
 		Callable<V> callableWrap = () -> {
 			try {
-				RequestContext ignore = requestContext != null
-						? RequestContextHelper.startChildContext(requestContext, true)
-						: RequestContextHelper.startContext(MDCUtil.generateTraceId(), true);
+				RequestContext ignore = requestContext == null
+						? RequestContextHelper.startContext(MDCUtil.generateTraceId(), true)
+						: RequestContextHelper.startChildContext(requestContext, true);
 
 				return callable.call();
+			} catch (Exception e) {
+				log.error("Trace Scheduled 线程池执行任务发生异常: {}", e.getMessage(), e);
+				throw e;
 			} finally {
 				RequestContextHelper.clear(true);
 			}
