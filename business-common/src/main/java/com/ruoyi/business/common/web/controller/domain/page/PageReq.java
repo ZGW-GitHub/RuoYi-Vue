@@ -17,6 +17,8 @@
 
 package com.ruoyi.business.common.web.controller.domain.page;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
@@ -53,6 +55,10 @@ public class PageReq implements Serializable {
 
 	public long offset() {
 		return Math.max((this.currentPage - 1) * this.pageSize, 0L);
+	}
+
+	public <T> IPage<T> mybatisPage() {
+		return new Page<>(currentPage, pageSize);
 	}
 
 }

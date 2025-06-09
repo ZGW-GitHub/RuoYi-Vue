@@ -17,6 +17,7 @@
 
 package com.ruoyi.business.common.web.controller.domain.page;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -53,6 +54,10 @@ public class PageResp<T> {
 
 	public static <T> PageResp<T> of(long total, List<T> records) {
 		return new PageResp<>(total, records);
+	}
+
+	public static <T> PageResp<T> of(IPage<T> page) {
+		return of(page.getTotal(), page.getRecords());
 	}
 
 	@SuppressWarnings("unchecked")
