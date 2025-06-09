@@ -18,6 +18,7 @@
 package com.ruoyi.business.common.util;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ruoyi.business.common.web.controller.domain.page.PageResp;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,16 @@ public class BeanUtil {
 		}
 
 		return sourceList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
+	}
+
+	public static <S, T> PageResp<T> mapPage(IPage<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
+		List<S> pageRecordList = pageResp.getRecords();
+		if (CollUtil.isEmpty(pageRecordList)) {
+			return PageResp.of(pageResp.getTotal(), new ArrayList<>());
+		}
+
+		List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
+		return PageResp.of(pageResp.getTotal(), targetPageRecordList);
 	}
 
 	public static <S, T> PageResp<T> mapPage(PageResp<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
