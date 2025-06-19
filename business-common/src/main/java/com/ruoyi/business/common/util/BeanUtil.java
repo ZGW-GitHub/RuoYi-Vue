@@ -17,6 +17,7 @@
 
 package com.ruoyi.business.common.util;
 
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ruoyi.business.common.web.controller.domain.page.PageResp;
@@ -34,36 +35,48 @@ import java.util.List;
 @Slf4j
 public class BeanUtil {
 
-	public static <S, T> T map(S source, Class<T> targetClass, String... ignoreProperties) {
-		return cn.hutool.core.bean.BeanUtil.copyProperties(source, targetClass, ignoreProperties);
-	}
+    public static <S, T> T map(S source, Class<T> targetClass, String... ignoreProperties) {
+        return cn.hutool.core.bean.BeanUtil.copyProperties(source, targetClass, ignoreProperties);
+    }
 
-	public static <S, T> List<T> mapList(Collection<S> sourceList, Class<T> targetClass, String... ignoreProperties) {
-		if (CollUtil.isEmpty(sourceList)) {
-			return Collections.emptyList();
-		}
+    public static <S, T> List<T> mapList(Collection<S> sourceList, Class<T> targetClass, String... ignoreProperties) {
+        if (CollUtil.isEmpty(sourceList)) {
+            return Collections.emptyList();
+        }
 
-		return sourceList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
-	}
+        return sourceList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
+    }
 
-	public static <S, T> PageResp<T> mapPage(IPage<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
-		List<S> pageRecordList = pageResp.getRecords();
-		if (CollUtil.isEmpty(pageRecordList)) {
-			return PageResp.of(pageResp.getTotal(), new ArrayList<>());
-		}
+    public static <S, T> PageResp<T> mapPage(IPage<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
+        List<S> pageRecordList = pageResp.getRecords();
+        if (CollUtil.isEmpty(pageRecordList)) {
+            return PageResp.of(pageResp.getTotal(), new ArrayList<>());
+        }
 
-		List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
-		return PageResp.of(pageResp.getTotal(), targetPageRecordList);
-	}
+        List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
+        return PageResp.of(pageResp.getTotal(), targetPageRecordList);
+    }
 
-	public static <S, T> PageResp<T> mapPage(PageResp<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
-		List<S> pageRecordList = pageResp.getRecords();
-		if (CollUtil.isEmpty(pageRecordList)) {
-			return PageResp.of(pageResp.getTotal(), new ArrayList<>());
-		}
+    public static <S, T> PageResp<T> mapPage(PageResp<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
+        List<S> pageRecordList = pageResp.getRecords();
+        if (CollUtil.isEmpty(pageRecordList)) {
+            return PageResp.of(pageResp.getTotal(), new ArrayList<>());
+        }
 
-		List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
-		return PageResp.of(pageResp.getTotal(), targetPageRecordList);
-	}
+        List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
+        return PageResp.of(pageResp.getTotal(), targetPageRecordList);
+    }
+
+    public static void copyProperties(Object source, Object target, String... ignoreProperties) {
+        cn.hutool.core.bean.BeanUtil.copyProperties(source, target, ignoreProperties);
+    }
+
+    public static void copyProperties(Object source, Object target, boolean ignoreCase) {
+        cn.hutool.core.bean.BeanUtil.copyProperties(source, target, ignoreCase);
+    }
+
+    public static void copyProperties(Object source, Object target, CopyOptions copyOptions) {
+        cn.hutool.core.bean.BeanUtil.copyProperties(source, target, copyOptions);
+    }
 
 }
