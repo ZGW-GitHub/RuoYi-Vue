@@ -18,8 +18,6 @@
 package com.ruoyi.business.common.mybatis.component;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
@@ -49,7 +47,7 @@ public class BaseMetaObjectHandler implements MetaObjectHandler {
 		log.debug("start update fill ....");
 
 		Long userId = SecurityUtils.getLoginUser().getUserId();
-		this.strictInsertFill(metaObject, "updater", Long.class, userId);
+		this.strictUpdateFill(metaObject, "updater", Long.class, userId);
 		this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
 	}
 
