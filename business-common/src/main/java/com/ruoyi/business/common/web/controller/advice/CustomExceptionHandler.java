@@ -19,7 +19,7 @@ package com.ruoyi.business.common.web.controller.advice;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.ruoyi.business.common.web.controller.domain.Result;
+import com.ruoyi.business.common.domain.resp.Result;
 import com.ruoyi.business.common.web.exception.BizException;
 import com.ruoyi.business.common.web.exception.Exception;
 import com.ruoyi.business.common.web.exception.SysException;

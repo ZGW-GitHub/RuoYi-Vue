@@ -15,13 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.ruoyi.business.common.web.controller.domain;
+package com.ruoyi.business.common.domain.resp;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
+import com.ruoyi.business.common.web.exception.Exception;
 import com.ruoyi.business.common.web.exception.code.ExceptionCode;
 import com.ruoyi.business.framework.web.request.RequestContextHelper;
-import com.ruoyi.business.common.web.exception.Exception;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
