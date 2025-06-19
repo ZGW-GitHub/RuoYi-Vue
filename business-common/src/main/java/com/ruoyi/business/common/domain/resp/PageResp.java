@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.ruoyi.business.common.web.controller.domain.page;
+package com.ruoyi.business.common.domain.resp;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.Data;

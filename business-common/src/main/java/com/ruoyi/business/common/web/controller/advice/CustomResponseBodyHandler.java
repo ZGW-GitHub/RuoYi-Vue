@@ -17,7 +17,7 @@
 
 package com.ruoyi.business.common.web.controller.advice;
 
-import com.ruoyi.business.common.web.controller.domain.Result;
+import com.ruoyi.business.common.domain.resp.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;

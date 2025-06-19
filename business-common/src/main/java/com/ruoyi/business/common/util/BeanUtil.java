@@ -20,7 +20,7 @@ package com.ruoyi.business.common.util;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.ruoyi.business.common.web.controller.domain.page.PageResp;
+import com.ruoyi.business.common.domain.resp.PageResp;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
