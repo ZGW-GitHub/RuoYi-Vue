@@ -33,10 +33,10 @@ import java.io.Serializable;
 public class PageReq implements Serializable {
 
 	/**
-	 * 当前页
+	 * 页码
 	 */
-	@Min(value = 1, message = "当前页不合法，应大于等于 1")
-	private long currentPage = 1;
+	@Min(value = 1, message = "页码不合法，应大于等于 1")
+	private long pageNum = 1;
 
 	/**
 	 * 每页显示条数，默认 10
@@ -46,7 +46,7 @@ public class PageReq implements Serializable {
 	private long pageSize = 10;
 
 	public long currentPage() {
-		return currentPage;
+		return pageNum;
 	}
 
 	public long pageSize() {
@@ -54,11 +54,11 @@ public class PageReq implements Serializable {
 	}
 
 	public long offset() {
-		return Math.max((this.currentPage - 1) * this.pageSize, 0L);
+		return Math.max((this.pageNum - 1) * this.pageSize, 0L);
 	}
 
 	public <T> IPage<T> mybatisPage() {
-		return new Page<>(currentPage, pageSize);
+		return new Page<>(pageNum, pageSize);
 	}
 
 }
