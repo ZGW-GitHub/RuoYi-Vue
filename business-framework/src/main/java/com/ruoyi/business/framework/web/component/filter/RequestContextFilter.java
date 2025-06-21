@@ -17,6 +17,7 @@
 
 package com.ruoyi.business.framework.web.component.filter;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ruoyi.business.framework.web.request.RequestContextEnum;
 import com.ruoyi.business.framework.web.request.RequestContextHelper;
@@ -49,7 +50,7 @@ public class RequestContextFilter extends OncePerRequestFilter {
 
 		// 0、白名单放行
 		if (RequestUtil.isWhiteList(RequestUtil.WHITE_LIST, requestUrl)) {
-			log.debug("not trace ... , 请求: {}", requestUrl);
+			log.debug("【 Trace Ignore 】请求: {}", requestUrl);
 
 			// 继续执行 Filter 链
 			filterChain.doFilter(request, response);
@@ -65,13 +66,13 @@ public class RequestContextFilter extends OncePerRequestFilter {
 		try {
 			// 2、启动 Trace
 			RequestContextHelper.startContext(traceId, true);
-			log.debug("开始 trace ... , 请求: {}", requestUrl);
+			log.debug("【 Trace 开始 】请求: {}", requestUrl);
 
 			// 3、继续执行 Filter 链
 			filterChain.doFilter(request, response);
 		} finally {
 			// 4、清除 Trace
-			log.debug("清除 trace ... , 请求: {}", requestUrl);
+			log.debug("【 Trace 清除 】请求: {}", requestUrl);
 			RequestContextHelper.clear(true);
 		}
 	}
