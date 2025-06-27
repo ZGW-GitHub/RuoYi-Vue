@@ -35,7 +35,7 @@ public class BaseMetaObjectHandler implements MetaObjectHandler {
 
 	@Override
 	public void insertFill(MetaObject metaObject) {
-		log.debug("start insert fill ....");
+		// log.debug("start insert fill ....");
 
 		Long userId = SecurityUtils.getLoginUser().getUserId();
 		this.strictInsertFill(metaObject, "creator", Long.class, userId);
@@ -44,7 +44,7 @@ public class BaseMetaObjectHandler implements MetaObjectHandler {
 
 	@Override
 	public void updateFill(MetaObject metaObject) {
-		log.debug("start update fill ....");
+		// log.debug("start update fill ....");
 
 		Long userId = SecurityUtils.getLoginUser().getUserId();
 		this.strictUpdateFill(metaObject, "updater", Long.class, userId);
