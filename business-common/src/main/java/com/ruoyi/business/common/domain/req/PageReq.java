@@ -17,7 +17,6 @@
 
 package com.ruoyi.business.common.domain.req;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -57,7 +56,7 @@ public class PageReq implements Serializable {
 		return Math.max((this.pageNum - 1) * this.pageSize, 0L);
 	}
 
-	public <T> IPage<T> mybatisPage() {
+	public <T> Page<T> mybatisPage() {
 		return new Page<>(pageNum, pageSize);
 	}
 
