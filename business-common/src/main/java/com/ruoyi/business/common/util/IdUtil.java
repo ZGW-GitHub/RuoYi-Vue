@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Snow
- * @date 2023/5/23 21:07
  */
 @Slf4j
 public class IdUtil {

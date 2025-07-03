@@ -23,7 +23,6 @@ import org.slf4j.MDC;
 
 /**
  * @author Snow
- * @date 2023/6/9 20:29
  */
 @Slf4j
 public class MDCUtil {

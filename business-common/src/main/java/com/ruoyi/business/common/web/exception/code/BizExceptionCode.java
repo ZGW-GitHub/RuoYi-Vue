@@ -29,8 +29,7 @@ import lombok.Getter;
  *     <li>UserExceptionCode	: 13xxxx</li>
  * </ul>
  *
- * @author 愆凡
- * @date 2022/6/13 21:51
+ * @author Snow
  */
 @Getter
 @AllArgsConstructor

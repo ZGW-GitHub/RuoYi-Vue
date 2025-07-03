@@ -3,7 +3,7 @@ package com.ruoyi.business;
 import com.ruoyi.RuoYiApplicationTest;
 
 /**
- * @author zgw
+ * @author Snow
  */
 public class BusinessTest extends RuoYiApplicationTest {
 }

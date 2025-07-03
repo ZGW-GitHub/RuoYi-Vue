@@ -38,8 +38,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * @author 愆凡
- * @date 2022/6/13 22:02
+ * @author Snow
  */
 @Slf4j
 @Order(1)

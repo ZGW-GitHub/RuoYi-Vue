@@ -9,8 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * @author zgw
- * @date 2025/5/25
+ * @author Snow
  */
 @SpringBootTest
 public class RuoYiApplicationTest {

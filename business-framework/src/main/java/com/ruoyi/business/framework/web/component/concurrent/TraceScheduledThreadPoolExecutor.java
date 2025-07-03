@@ -21,14 +21,12 @@ import com.ruoyi.business.framework.web.request.RequestContext;
 import com.ruoyi.business.framework.web.request.RequestContextHelper;
 import com.ruoyi.business.framework.web.util.MDCUtil;
 import jakarta.annotation.Nonnull;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.*;
 
 /**
  * @author Snow
- * @date 2024/2/28
  */
 @Slf4j
 public class TraceScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {

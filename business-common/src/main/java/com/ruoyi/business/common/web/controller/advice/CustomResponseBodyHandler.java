@@ -31,7 +31,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * @author Snow
- * @date 2024/3/26
  */
 @Slf4j
 @Order(2)

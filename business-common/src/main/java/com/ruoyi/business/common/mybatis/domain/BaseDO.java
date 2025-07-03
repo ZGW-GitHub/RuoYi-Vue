@@ -30,7 +30,6 @@ import java.time.LocalDateTime;
 
 /**
  * @author Snow
- * @date 2023/6/12 17:38
  */
 @Data
 public class BaseDO implements Serializable {

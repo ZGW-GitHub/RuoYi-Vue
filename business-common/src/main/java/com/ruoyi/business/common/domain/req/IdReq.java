@@ -3,7 +3,7 @@ package com.ruoyi.business.common.domain.req;
 import lombok.Data;
 
 /**
- * @author zgw
+ * @author Snow
  */
 @Data
 public class IdReq {
