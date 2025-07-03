@@ -26,7 +26,6 @@ import java.io.Serializable;
 
 /**
  * @author Snow
- * @date 2023/5/19 11:40
  */
 @Data
 public class PageReq implements Serializable {

@@ -28,7 +28,6 @@ import cn.hutool.core.util.StrUtil;
  * </ul>
  *
  * @author Snow
- * @date 2023/5/21 15:12
  */
 public interface ExceptionCode {
 

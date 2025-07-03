@@ -3,7 +3,7 @@ package com.ruoyi.business.common.web.logging;
 import java.lang.annotation.*;
 
 /**
- * @author zgw
+ * @author Snow
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

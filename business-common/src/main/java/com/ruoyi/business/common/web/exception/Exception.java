@@ -22,7 +22,6 @@ import lombok.Getter;
 
 /**
  * @author Snow
- * @date 2023/5/22 21:39
  */
 @Getter
 public class Exception extends RuntimeException {

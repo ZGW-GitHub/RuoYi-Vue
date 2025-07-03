@@ -35,7 +35,6 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
  * </ul>
  *
  * @author Snow
- * @date 2023/5/26 20:05
  */
 public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<T> {
 

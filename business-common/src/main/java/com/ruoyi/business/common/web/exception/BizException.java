@@ -4,7 +4,6 @@ import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
 
 /**
  * @author Snow
- * @date 2022/6/13 21:48
  */
 public class BizException extends Exception {
 

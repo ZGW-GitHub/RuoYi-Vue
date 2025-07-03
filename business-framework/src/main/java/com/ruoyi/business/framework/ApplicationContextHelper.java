@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author Snow
- * @date 2023/5/23 16:50
  */
 @Component
 public class ApplicationContextHelper implements ApplicationContextAware {

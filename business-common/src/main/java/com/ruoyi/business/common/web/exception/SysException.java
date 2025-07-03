@@ -3,8 +3,7 @@ package com.ruoyi.business.common.web.exception;
 import com.ruoyi.business.common.web.exception.code.SysExceptionCode;
 
 /**
- * @author 愆凡
- * @date 2022/6/13 21:48
+ * @author Snow
  */
 public class SysException extends Exception {
 

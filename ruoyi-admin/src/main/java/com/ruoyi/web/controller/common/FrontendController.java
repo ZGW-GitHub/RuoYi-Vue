@@ -4,8 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * @author zgw
- * @date 2025/5/28
+ * @author Snow
  */
 @Controller
 public class FrontendController {

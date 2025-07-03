@@ -30,7 +30,6 @@ import java.util.List;
 
 /**
  * @author Snow
- * @date 2023/6/24 20:19
  */
 @Slf4j
 public class BeanUtil {
