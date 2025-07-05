@@ -1,0 +1,62 @@
+name: 自动打标签
+
+on:
+  push:
+    branches:
+      - '**'
+
+permissions:
+  contents: write  # 允许写入代码库（包括 tag 推送）
+
+jobs:
+  create_tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 🏷️ 获取当前分支名称
+        id: get_branch
+        run: |
+          ref_name="${GITHUB_REF##*/}"
+          echo "branch=$ref_name" >> $GITHUB_OUTPUT
+
+      - name: 🔍 查找该分支的最新标签
+        id: get_latest_tag
+        run: |
+          prefix="v"
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            prefix="v1"
+          elif [[ "${GITHUB_REF}" == refs/heads/release/* ]]; then
+            branch_name="${GITHUB_REF##*/}"
+            major_ver=${branch_name%%.*}
+            prefix="v${major_ver}"
+          fi
+
+          latest_tag=$(git tag --list "${prefix}.*" --sort=-v:refname | head -n 1)
+          if [[ -z "$latest_tag" ]]; then
+            latest_tag="${prefix}.0.0"
+          fi
+          echo "最新标签为: $latest_tag"
+          echo "tag=$latest_tag" >> $GITHUB_OUTPUT
+          echo "prefix=$prefix" >> $GITHUB_OUTPUT
+
+      - name: 🔧 计算下一个标签版本
+        id: next_tag
+        run: |
+          version=${{ steps.get_latest_tag.outputs.tag }}
+          version=${version#v}
+          IFS='.' read -r major minor patch <<< "$version"
+          new_patch=$((patch + 1))
+          new_tag="v${major}.${minor}.${new_patch}"
+          echo "新的标签为: $new_tag"
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+
+      - name: 🚀 创建并推送新标签
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+
+          git tag ${{ steps.next_tag.outputs.new_tag }}
+          git push origin ${{ steps.next_tag.outputs.new_tag }}
