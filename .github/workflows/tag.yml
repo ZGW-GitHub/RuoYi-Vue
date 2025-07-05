@@ -28,8 +28,20 @@ jobs:
           # 提取分支名（去掉 refs/heads/ 前缀）
           branch="${GITHUB_REF##refs/heads/}"
 
+          # 强制推送加标
+          # 拉取远程分支
+          git fetch origin $branch
+          # 判断是否为强制推送
+          if git merge-base --is-ancestor origin/$branch HEAD; then
+            force_flag=""
+            echo "检测到正常推送"
+          else
+            force_flag="-force"
+            echo "检测到强制推送"
+          fi
+
           # 拼接完整 tag 名
-          tag_name="backup-${timestamp}-${branch}"
+          tag_name="backup-${timestamp}-${branch}${force_flag}"
           echo "生成标签: $tag_name"
           echo "tag=$tag_name" >> $GITHUB_OUTPUT
 
