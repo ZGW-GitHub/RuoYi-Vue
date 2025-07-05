@@ -16,7 +16,7 @@ jobs:
       - name: 🧾 拉取代码
         uses: actions/checkout@v4
 
-      - name: ⏱️ 生成带时间的备份标签（backup-yyyyMMdd.HHmmss.SSS）
+      - name: ⏱️ 生成标签名
         id: gen_tag
         run: |
           # 获取当前时间戳
