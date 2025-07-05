@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -66,6 +67,11 @@ public class CustomExceptionHandler {
 	}
 
 	private Result<Void> doExceptionHandler(HttpServletRequest request, HttpServletResponse response, Throwable rootThrowable, Throwable originalThrowable) {
+		if (rootThrowable instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
+			// 处理参数异常
+			return handleMethodArgumentNotValidException(methodArgumentNotValidException, originalThrowable);
+		}
+
 		if (rootThrowable instanceof ConstraintViolationException constraintViolationException) {
 			// 处理验证异常
 			return handleConstraintViolationException(constraintViolationException, originalThrowable);
@@ -85,8 +91,15 @@ public class CustomExceptionHandler {
 		return handleThrowable(request, response, rootThrowable, originalThrowable);
 	}
 
+	private Result<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException rootThrowable, Throwable originalThrowable) {
+		log.error("【 异常拦截 】>>>>>> MethodArgumentNotValidException : {}", rootThrowable.getMessage(), originalThrowable);
+
+		// return Result.error(new BizException(BizExceptionCode.VALIDATION_EXCEPTION, buildViolationMessage(rootThrowable)));
+		return Result.error(new BizException(BizExceptionCode.PARAMS_VALIDATION_EXCEPTION));
+	}
+
 	private Result<Void> handleConstraintViolationException(ConstraintViolationException rootThrowable, Throwable originalThrowable) {
-		log.error("【 异常拦截 】>>>>>> ValidationException : {}", rootThrowable.getMessage(), originalThrowable);
+		log.error("【 异常拦截 】>>>>>> ConstraintViolationException : {}", rootThrowable.getMessage(), originalThrowable);
 
 		// return Result.error(new BizException(BizExceptionCode.VALIDATION_EXCEPTION, buildViolationMessage(rootThrowable)));
 		return Result.error(new BizException(BizExceptionCode.PARAMS_VALIDATION_EXCEPTION));
