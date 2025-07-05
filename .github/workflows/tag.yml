@@ -19,9 +19,17 @@ jobs:
       - name: ⏱️ 生成标签名
         id: gen_tag
         run: |
-          # 获取当前时间戳
+          # 设置为上海时区
+          export TZ="Asia/Shanghai"
+
+          # 获取当前时间戳（年月日.时分秒.毫秒）
           timestamp=$(date +'%Y%m%d.%H%M%S.%3N')
-          tag_name="backup-${timestamp}"
+
+          # 提取分支名（去掉 refs/heads/ 前缀）
+          branch="${GITHUB_REF##refs/heads/}"
+
+          # 拼接完整 tag 名
+          tag_name="backup-${timestamp}-${branch}"
           echo "生成标签: $tag_name"
           echo "tag=$tag_name" >> $GITHUB_OUTPUT
 
