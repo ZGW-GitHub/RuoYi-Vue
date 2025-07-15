@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author Snow
@@ -35,7 +37,15 @@ import java.util.List;
 public class BeanUtil {
 
     public static <S, T> T map(S source, Class<T> targetClass, String... ignoreProperties) {
-        return cn.hutool.core.bean.BeanUtil.copyProperties(source, targetClass, ignoreProperties);
+        return map(source, targetClass, null, ignoreProperties);
+    }
+
+    private static <S, T> T map(S source, Class<T> targetClass, BiConsumer<S, T> customFunc, String... ignoreProperties) {
+        T target = cn.hutool.core.bean.BeanUtil.copyProperties(source, targetClass, ignoreProperties);
+        if (customFunc != null) {
+            customFunc.accept(source, target);
+        }
+        return target;
     }
 
     public static <S, T> List<T> mapList(Collection<S> sourceList, Class<T> targetClass, String... ignoreProperties) {
@@ -43,27 +53,54 @@ public class BeanUtil {
             return Collections.emptyList();
         }
 
-        return sourceList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
+        return sourceList.stream().map(source -> map(source, targetClass, null, ignoreProperties)).toList();
+    }
+
+    public static <S, T> List<T> mapList(Collection<S> sourceList, Class<T> targetClass, BiConsumer<S, T> customFunc, String... ignoreProperties) {
+        if (CollUtil.isEmpty(sourceList)) {
+            return Collections.emptyList();
+        }
+
+        return sourceList.stream().map(source -> map(source, targetClass, customFunc, ignoreProperties)).toList();
     }
 
     public static <S, T> PageResp<T> mapPage(IPage<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
-        List<S> pageRecordList = pageResp.getRecords();
-        if (CollUtil.isEmpty(pageRecordList)) {
-            return PageResp.of(pageResp.getTotal(), new ArrayList<>());
-        }
+        long total = pageResp.getTotal();
+        List<S> recordList = pageResp.getRecords();
 
-        List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
-        return PageResp.of(pageResp.getTotal(), targetPageRecordList);
+        return mapPage(targetClass, recordList, total, null, ignoreProperties);
     }
 
     public static <S, T> PageResp<T> mapPage(PageResp<S> pageResp, Class<T> targetClass, String... ignoreProperties) {
-        List<S> pageRecordList = pageResp.getRecords();
-        if (CollUtil.isEmpty(pageRecordList)) {
-            return PageResp.of(pageResp.getTotal(), new ArrayList<>());
+        long total = pageResp.getTotal();
+        List<S> recordList = pageResp.getRecords();
+
+        return mapPage(targetClass, recordList, total, null, ignoreProperties);
+    }
+
+    public static <S, T> PageResp<T> mapPage(IPage<S> pageResp, Class<T> targetClass, BiConsumer<S, T> customFunc, String... ignoreProperties) {
+        long total = pageResp.getTotal();
+        List<S> recordList = pageResp.getRecords();
+
+        return mapPage(targetClass, recordList, total, customFunc, ignoreProperties);
+    }
+
+    public static <S, T> PageResp<T> mapPage(PageResp<S> pageResp, Class<T> targetClass, BiConsumer<S, T> customFunc, String... ignoreProperties) {
+        long total = pageResp.getTotal();
+        List<S> recordList = pageResp.getRecords();
+
+        return mapPage(targetClass, recordList, total, customFunc, ignoreProperties);
+    }
+
+    private static <S, T> PageResp<T> mapPage(Class<T> targetClass, List<S> recordList, long total, BiConsumer<S, T> customFunc, String[] ignoreProperties) {
+        if (CollUtil.isEmpty(recordList)) {
+            return PageResp.of(total, new ArrayList<>());
         }
 
-        List<T> targetPageRecordList = pageRecordList.stream().map(source -> map(source, targetClass, ignoreProperties)).toList();
-        return PageResp.of(pageResp.getTotal(), targetPageRecordList);
+        List<T> targetPageRecordList = recordList.stream()
+                .map(source -> map(source, targetClass, customFunc, ignoreProperties))
+                .toList();
+        return PageResp.of(total, targetPageRecordList);
     }
 
     public static void copyProperties(Object source, Object target, String... ignoreProperties) {
