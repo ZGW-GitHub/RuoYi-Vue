@@ -40,6 +40,7 @@
         <mybatis-plus-jsqlparser.version>3.5.10</mybatis-plus-jsqlparser.version>
         <!-- 自定义 begin -->
         <hutool.version>5.8.37</hutool.version>
+        <fast-excel.version>1.2.0</fast-excel.version>
         <transmittable-thread-local.version>2.14.3</transmittable-thread-local.version>
         <!-- 自定义 end -->
     </properties>
@@ -245,6 +246,13 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- 工具：Fast Excel -->
+            <dependency>
+                <groupId>cn.idev.excel</groupId>
+                <artifactId>fastexcel</artifactId>
+                <version>${fast-excel.version}</version>
             </dependency>
 
             <!-- 自定义 end -->
