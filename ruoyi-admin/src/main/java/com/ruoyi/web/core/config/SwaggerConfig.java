@@ -1,8 +1,5 @@
 package com.ruoyi.web.core.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import com.ruoyi.common.config.RuoYiConfig;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -10,6 +7,9 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Swagger2的接口配置
@@ -53,12 +53,12 @@ public class SwaggerConfig
     {
         return new Info()
             // 设置标题
-            .title("标题：若依管理系统_接口文档")
+            .title("系统接口文档")
             // 描述
-            .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
+            // .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
             // 作者信息
             .contact(new Contact().name(ruoyiConfig.getName()))
             // 版本
-            .version("版本号:" + ruoyiConfig.getVersion());
+            .version("版本号: " + ruoyiConfig.getVersion());
     }
 }
