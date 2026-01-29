@@ -284,6 +284,13 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+            <!-- Business: Archive -->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>business-archive</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -297,6 +304,7 @@
         <module>business-common</module>
         <module>business-framework</module>
         <module>business-template</module>
+        <module>business-archive</module>
     </modules>
     <packaging>pom</packaging>
 
