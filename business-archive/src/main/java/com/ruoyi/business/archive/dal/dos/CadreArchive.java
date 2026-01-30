@@ -8,14 +8,14 @@ import lombok.EqualsAndHashCode;
 import java.io.Serial;
 
 /**
- * 干部信息表
- * 
+ * 干部档案表
+ *
  * @author Snow
  */
 @Data
-@TableName("bus_cadre_info")
+@TableName("bus_cadre_archive")
 @EqualsAndHashCode(callSuper = true)
-public class CadreInfo extends BaseDO {
+public class CadreArchive extends BaseDO {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -23,7 +23,12 @@ public class CadreInfo extends BaseDO {
     /**
      * 干部姓名
      */
-    private String cadresName;
+    private String cadreName;
+
+    /**
+     * 干部姓名首字母拼音
+     */
+    private String cadreNamePy;
 
     /**
      * 性别
@@ -49,5 +54,15 @@ public class CadreInfo extends BaseDO {
      * 部门ID
      */
     private Long deptId;
+
+    /**
+     * 档案文件路径
+     */
+    private String archiveFilePath;
+
+    /**
+     * 档案库存状态
+     */
+    private String archiveStockStatus;
 
 }
