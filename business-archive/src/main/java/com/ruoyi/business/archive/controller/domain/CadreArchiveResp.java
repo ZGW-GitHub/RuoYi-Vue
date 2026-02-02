@@ -5,5 +5,5 @@ import com.ruoyi.business.archive.dal.dos.CadreArchive;
 /**
  * @author Snow
  */
-public class CadreArchiveInfo extends CadreArchive {
+public class CadreArchiveResp extends CadreArchive {
 }

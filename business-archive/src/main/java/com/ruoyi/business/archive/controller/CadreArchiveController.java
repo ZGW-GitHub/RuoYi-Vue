@@ -1,7 +1,7 @@
 package com.ruoyi.business.archive.controller;
 
-import com.ruoyi.business.archive.controller.domain.CadreArchiveInfo;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
+import com.ruoyi.business.archive.controller.domain.CadreArchiveResp;
 import com.ruoyi.business.archive.service.CadreArchiveService;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import jakarta.annotation.Resource;
@@ -22,7 +22,7 @@ public class CadreArchiveController {
     private CadreArchiveService cadreArchiveService;
 
     @GetMapping("list")
-    public PageResp<CadreArchiveInfo> list(CadreArchivePageReq req) {
+    public PageResp<CadreArchiveResp> list(CadreArchivePageReq req) {
         return cadreArchiveService.page(req);
     }
 

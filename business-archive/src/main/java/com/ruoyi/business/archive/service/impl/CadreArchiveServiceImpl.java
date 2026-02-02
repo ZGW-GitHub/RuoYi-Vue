@@ -2,8 +2,8 @@ package com.ruoyi.business.archive.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.ruoyi.business.archive.controller.domain.CadreArchiveInfo;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
+import com.ruoyi.business.archive.controller.domain.CadreArchiveResp;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveService;
@@ -27,12 +27,12 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
      * 列表
      *
      * @param req req
-     * @return {@link PageResp }<{@link CadreArchiveInfo }>
+     * @return {@link PageResp }<{@link CadreArchiveResp }>
      */
     @Override
-    public PageResp<CadreArchiveInfo> page(CadreArchivePageReq req) {
+    public PageResp<CadreArchiveResp> page(CadreArchivePageReq req) {
         Page<CadreArchive> page = cadreArchiveMapper.selectPages(req.mybatisPage(), req);
-        return PageResp.of(page.getTotal(), BeanUtil.mapList(page.getRecords(), CadreArchiveInfo.class));
+        return PageResp.of(page.getTotal(), BeanUtil.mapList(page.getRecords(), CadreArchiveResp.class));
     }
 
 }
