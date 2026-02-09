@@ -19,9 +19,7 @@ import com.ruoyi.business.common.util.TreeUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * 档案项表 服务实现
@@ -50,7 +48,16 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
             return new CadreArchiveItemTreeResp();
         }
 
-        List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID));
+        List<CadreArchiveItem> itemList;
+        if (req.getArchiveItemId() == null) {
+            itemList = cadreArchiveItemMapper.listByArchiveId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID));
+        } else {
+            List<String> parentItemIdList = Optional.of(req.getArchiveItemId()).map(cadreArchiveItemMapper::selectById)
+                    .map(CadreArchiveItem::getAncestors).map(ancestors -> StrUtil.split(ancestors, ','))
+                    .orElse(Collections.emptyList());
+            itemList = cadreArchiveItemMapper.listByArchiveIdAndItemId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID), req.getArchiveItemId(), parentItemIdList);
+        }
+
         List<CadreArchiveItemTreeItem> treeItemList = BeanUtil.mapList(itemList, CadreArchiveItemTreeItem.class, (source, target) -> {
             String materialDate = source.getMaterialDate();
             boolean isCommonItem = source.getArchiveId().equals(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID);
@@ -81,7 +88,7 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         gatherImage(cadreArchive, null, treeData, originalImageList, optimizeImageList);
 
         // 移除图片节点
-        if (req.getIncludeImageNode() == null || !req.getIncludeImageNode()) {
+        if (req.getTreeIncludeImage() == null || !req.getTreeIncludeImage()) {
             removeImageNode(treeData);
         }
 

@@ -37,6 +37,16 @@ public interface CadreArchiveItemMapper extends BaseMapper<CadreArchiveItem> {
                 .list();
     }
 
+    default List<CadreArchiveItem> listByArchiveIdAndItemId(List<Long> archiveIdList, Long archiveItemId, List<String> parentItemIdList) {
+        return lambdaChainQueryWrapper()
+                .in(CadreArchiveItem::getArchiveId, archiveIdList)
+                .eq(CadreArchiveItem::getId, archiveItemId).or().in(CadreArchiveItem::getId, parentItemIdList)
+                .or().eq(CadreArchiveItem::getParentId, archiveItemId)
+                .orderByAsc(CadreArchiveItem::getParentId)
+                .orderByAsc(CadreArchiveItem::getSort)
+                .list();
+    }
+
     /**
      * 分页查询档案项
      *
