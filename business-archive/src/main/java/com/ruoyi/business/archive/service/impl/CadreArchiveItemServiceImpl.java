@@ -1,20 +1,26 @@
 package com.ruoyi.business.archive.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.ruoyi.business.archive.controller.domain.CadreArchiveItemTreeItem;
-import com.ruoyi.business.archive.controller.domain.CadreArchiveItemTreeReq;
+import com.ruoyi.business.archive.constants.CadreArchiveFileConstant;
+import com.ruoyi.business.archive.controller.domain.*;
+import com.ruoyi.business.archive.dal.dos.CadreArchive;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveItem;
+import com.ruoyi.business.archive.dal.enums.ArchiveItemTypeEnum;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveItemMapper;
+import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveItemService;
-import com.ruoyi.business.common.mybatis.domain.TreeDTO;
+import com.ruoyi.business.archive.util.CadreArchiveFileParseUtil;
+import com.ruoyi.business.common.domain.resp.PageResp;
 import com.ruoyi.business.common.util.BeanUtil;
-import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.business.common.util.TreeUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,76 +32,129 @@ import java.util.List;
 public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMapper, CadreArchiveItem> implements CadreArchiveItemService {
 
     @Resource
+    private CadreArchiveMapper cadreArchiveMapper;
+
+    @Resource
     private CadreArchiveItemMapper cadreArchiveItemMapper;
 
     /**
      * 树
      *
      * @param req req
-     * @return {@link List }<{@link CadreArchiveItemTreeItem }>
+     * @return {@link CadreArchiveItemTreeResp }
      */
     @Override
-    public List<CadreArchiveItemTreeItem> tree(CadreArchiveItemTreeReq req) {
-        List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(req.getArchiveId());
+    public CadreArchiveItemTreeResp tree(CadreArchiveItemTreeReq req) {
+        CadreArchive cadreArchive = cadreArchiveMapper.selectById(req.getArchiveId());
+        if (cadreArchive == null) {
+            return new CadreArchiveItemTreeResp();
+        }
+
+        List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID));
         List<CadreArchiveItemTreeItem> treeItemList = BeanUtil.mapList(itemList, CadreArchiveItemTreeItem.class, (source, target) -> {
-            target.setTitle(source.getItemName());
+            String materialDate = source.getMaterialDate();
+            boolean isCommonItem = source.getArchiveId().equals(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID);
+            if (isCommonItem) {
+                target.setTitle(source.getItemName());
+            } else if (StrUtil.isBlank(materialDate)) {
+                target.setTitle(StrUtil.format("{}、{}", source.getSort(), source.getItemName()));
+            } else {
+                target.setTitle(StrUtil.format("{}、{}（{}）", source.getSort(), source.getItemName(), materialDate));
+            }
+
+            if (ArchiveItemTypeEnum.FOUR.getCode().equals(source.getItemType())
+                    || ArchiveItemTypeEnum.NINE.getCode().equals(source.getItemType())) {
+                target.setDisabled(true);
+            }
+
             target.setKey(String.valueOf(source.getId()));
             target.setParentKey(String.valueOf(source.getParentId()));
+            target.setAncestorsKey(source.getAncestors());
         });
 
-        return buildTree(treeItemList);
-    }
+        // 构建树
+        List<CadreArchiveItemTreeItem> treeData = TreeUtil.buildTree(treeItemList);
 
-    private <T extends TreeDTO> List<T> buildTree(List<T> itemList) {
-        if (CollUtil.isEmpty(itemList)) {
-            return Collections.emptyList();
+        // 收集图片
+        List<CadreArchiveItemTreeResp.CadreArchiveImage> originalImageList = new ArrayList<>();
+        List<CadreArchiveItemTreeResp.CadreArchiveImage> optimizeImageList = new ArrayList<>();
+        gatherImage(cadreArchive, null, treeData, originalImageList, optimizeImageList);
+
+        // 移除图片节点
+        if (req.getIncludeImageNode() == null || !req.getIncludeImageNode()) {
+            removeImageNode(treeData);
         }
 
-        List<T> resultList = new ArrayList<>();
-        List<String> itemIdList = itemList.stream().map(T::getKey).toList();
-        for (T item : itemList) {
-            // 如果是顶级节点, 遍历该父节点的所有子节点
-            if (!itemIdList.contains(item.getParentKey())) {
-                recursionFn(itemList, item);
-                resultList.add(item);
+        // 返回
+        CadreArchiveResp cadreArchiveResp = new CadreArchiveResp();
+        cadreArchiveResp.setCadreName(cadreArchive.getCadreName());
+        cadreArchiveResp.setIdNumber(cadreArchive.getIdNumber());
+        return new CadreArchiveItemTreeResp()
+                .setCadreArchiveInfo(cadreArchiveResp)
+                .setTreeData(treeData)
+                .setOriginalImageList(originalImageList)
+                .setOptimizeImageList(optimizeImageList);
+    }
+
+    @Override
+    public PageResp<CadreArchiveItemPageRecord> page(CadreArchiveItemPageReq req) {
+        Page<CadreArchiveItemPageRecord> page = cadreArchiveItemMapper.selectPages(req.mybatisPage(), req);
+        return PageResp.of(page.getTotal(), page.getRecords());
+    }
+
+    private void removeImageNode(List<CadreArchiveItemTreeItem> treeData) {
+        if (CollUtil.isEmpty(treeData)) {
+            return;
+        }
+
+        treeData.forEach(item -> {
+            List<CadreArchiveItemTreeItem> childrenList = item.getChildren();
+            if (CollUtil.isEmpty(childrenList)) {
+                return;
             }
-        }
 
-        if (CollUtil.isEmpty(resultList)) {
-            return itemList;
-        }
-        return resultList;
+            childrenList = childrenList.stream().filter(children -> {
+                String itemType = children.getItemType();
+                return !StrUtil.equalsAny(itemType, ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode(), ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode());
+            }).toList();
+            item.setChildren(childrenList);
+
+            removeImageNode(childrenList);
+        });
     }
 
-    /**
-     * 递归方法
-     *
-     * @param itemList 项目列表
-     * @param item     项目
-     */
-    private <T extends TreeDTO> void recursionFn(List<T> itemList, T item) {
-        List<T> childList = getChildList(itemList, item);
-        item.setChildren(childList);
-
-        for (T child : childList) {
-            if (hasChild(itemList, child)) {
-                recursionFn(itemList, child);
+    public void gatherImage(CadreArchive cadreArchive,
+                            CadreArchiveItemTreeItem parent,
+                            List<CadreArchiveItemTreeItem> treeData,
+                            List<CadreArchiveItemTreeResp.CadreArchiveImage> originalImageList,
+                            List<CadreArchiveItemTreeResp.CadreArchiveImage> optimizeImageList) {
+        treeData.forEach(item -> {
+            if (CollUtil.isNotEmpty(item.getChildren())) {
+                gatherImage(cadreArchive, item, item.getChildren(), originalImageList, optimizeImageList);
             }
-        }
-    }
 
-    private <T extends TreeDTO> List<T> getChildList(List<T> itemList, T item) {
-        List<T> resultList = new ArrayList<>();
-        for (T i : itemList) {
-            if (StringUtils.isNotNull(i.getParentKey()) && i.getParentKey().equals(item.getKey())) {
-                resultList.add(i);
+            if (ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode().equals(item.getItemType())) {
+                originalImageList.add(new CadreArchiveItemTreeResp.CadreArchiveImage()
+                        .setType(ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode())
+                        .setName(item.getItemName())
+                        .setUrl(CadreArchiveFileConstant.getImageUrl(cadreArchive.getArchiveFilePath(), item.getItemName(), ArchiveItemTypeEnum.ORIGINAL_IMAGE))
+                        .setKey(item.getKey())
+                        .setParentKey(item.getParentKey())
+                        .setAncestorsKey(item.getAncestorsKey())
+                        .setMaterialName(parent != null ? parent.getItemName() : StrUtil.EMPTY)
+                        .setMaterialDate(parent != null ? parent.getMaterialDate() : StrUtil.EMPTY));
+            } else if (ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode().equals(item.getItemType())) {
+                optimizeImageList.add(new CadreArchiveItemTreeResp.CadreArchiveImage()
+                        .setType(ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode())
+                        .setName(item.getItemName())
+                        .setUrl(CadreArchiveFileConstant.getImageUrl(cadreArchive.getArchiveFilePath(), item.getItemName(), ArchiveItemTypeEnum.OPTIMIZE_IMAGE))
+                        .setKey(item.getKey())
+                        .setParentKey(item.getParentKey())
+                        .setAncestorsKey(item.getAncestorsKey())
+                        .setMaterialName(parent != null ? parent.getItemName() : StrUtil.EMPTY)
+                        .setMaterialDate(parent != null ? parent.getMaterialDate() : StrUtil.EMPTY));
             }
-        }
-        return resultList;
-    }
-
-    private <T extends TreeDTO> boolean hasChild(List<T> itemList, T child) {
-        return !getChildList(itemList, child).isEmpty();
+        });
     }
 
 }

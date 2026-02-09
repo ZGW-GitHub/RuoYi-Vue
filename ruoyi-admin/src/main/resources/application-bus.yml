@@ -1,0 +1,6 @@
+bus:
+  archive:
+    # 档案导入解压目录
+    unzip-dir: ${ruoyi.profile}/archiveFile/unzip
+    # 档案存储目录
+    storage-dir: ${ruoyi.profile}/archiveFile/persistence
