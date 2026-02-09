@@ -9,22 +9,21 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CadreArchiveItemTreeItem extends TreeDTO {
+public class CadreArchiveItemTreeItem extends TreeDTO<CadreArchiveItemTreeItem> {
 
     /** 干部档案id */
     private Long archiveId;
 
     /** 档案类别 */
-    private String archiveType;
+    private String itemType;
 
-    /** 部门名称 */
+    /** 档案名称 */
     private String itemName;
 
-    /** 父id */
-    private Long parentId;
-
-    /** 祖级列表 */
-    private String ancestors;
+    /**
+     * 材料日期
+     */
+    private String materialDate;
 
     /** 顺序 */
     private Integer sort;

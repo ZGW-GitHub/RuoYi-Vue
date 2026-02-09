@@ -19,8 +19,8 @@ public interface CadreArchiveMapper extends BaseMapper<CadreArchive> {
     default Page<CadreArchive> selectPages(Page<CadreArchive> page, CadreArchivePageReq req) {
         LambdaQueryChainWrapper<CadreArchive> wrapper = lambdaChainQueryWrapper();
         if (StrUtil.isNotBlank(req.getCadreName())) {
-            wrapper.and(w -> w.like(CadreArchive::getCadreName, req.getCadreName()))
-                    .or().likeRight(CadreArchive::getCadreNamePy, req.getCadreName());
+            wrapper.like(CadreArchive::getCadreName, req.getCadreName()).or()
+                    .likeRight(CadreArchive::getCadreNamePy, req.getCadreName());
         }
 
         return wrapper.eq(req.getDeptId() != null, CadreArchive::getDeptId, req.getDeptId())

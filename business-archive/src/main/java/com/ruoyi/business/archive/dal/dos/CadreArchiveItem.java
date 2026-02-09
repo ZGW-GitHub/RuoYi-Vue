@@ -24,10 +24,20 @@ public class CadreArchiveItem extends BaseDO {
     private Long archiveId;
 
     /** 档案类别 */
-    private String archiveType;
+    private String itemType;
 
-    /** 部门名称 */
+    /** 档案名称 */
     private String itemName;
+
+    /**
+     * 材料日期
+     */
+    private String materialDate;
+
+    /**
+     * 材料页数
+     */
+    private Integer materialPageCount;
 
     /** 父id */
     private Long parentId;
