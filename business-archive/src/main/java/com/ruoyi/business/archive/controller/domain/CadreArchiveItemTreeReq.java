@@ -10,6 +10,8 @@ public class CadreArchiveItemTreeReq {
 
     private Long archiveId;
 
-    private Boolean includeImageNode;
+    private Long archiveItemId;
+
+    private Boolean treeIncludeImage;
 
 }
