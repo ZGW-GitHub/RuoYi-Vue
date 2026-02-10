@@ -28,7 +28,7 @@ public class BusinessTest extends RuoYiApplicationTest {
 
     @Test
     public void test() {
-        List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(Collections.singletonList(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID));
+        List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(Collections.singletonList(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID), "");
         Map<String, CadreArchiveItem> itemMap = itemList.stream().collect(Collectors.toMap(CadreArchiveItem::getItemType, Function.identity(), (v1, v2) -> v1));
 
         try(InputStream inputStream = FileUtil.getInputStream("/Users/snow/Downloads/project-archive/test.zip")) {

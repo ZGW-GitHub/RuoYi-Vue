@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 public class CadreArchiveItemTreeItem extends TreeDTO<CadreArchiveItemTreeItem> {
 
     /** 干部档案id */
-    private Long archiveId;
+    private String archiveId;
 
     /** 档案类别 */
     private String itemType;
