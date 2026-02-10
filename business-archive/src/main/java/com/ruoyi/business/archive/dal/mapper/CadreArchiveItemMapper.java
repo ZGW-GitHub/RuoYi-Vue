@@ -1,5 +1,6 @@
 package com.ruoyi.business.archive.dal.mapper;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveItemPageRecord;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveItemPageReq;
@@ -29,19 +30,21 @@ public interface CadreArchiveItemMapper extends BaseMapper<CadreArchiveItem> {
                 .list();
     }
 
-    default List<CadreArchiveItem> listByArchiveId(List<Long> archiveIdList) {
+    default List<CadreArchiveItem> listByArchiveId(List<Long> archiveIdList, String treeExcludeImageType) {
         return lambdaChainQueryWrapper()
                 .in(CadreArchiveItem::getArchiveId, archiveIdList)
                 .orderByAsc(CadreArchiveItem::getParentId)
                 .orderByAsc(CadreArchiveItem::getSort)
+                .ne(StrUtil.isNotBlank(treeExcludeImageType), CadreArchiveItem::getItemType, treeExcludeImageType)
                 .list();
     }
 
-    default List<CadreArchiveItem> listByArchiveIdAndItemId(List<Long> archiveIdList, Long archiveItemId, List<String> parentItemIdList) {
+    default List<CadreArchiveItem> listByArchiveIdAndItemId(List<Long> archiveIdList, Long archiveItemId, List<String> parentItemIdList, String treeExcludeImageType) {
         return lambdaChainQueryWrapper()
                 .in(CadreArchiveItem::getArchiveId, archiveIdList)
                 .eq(CadreArchiveItem::getId, archiveItemId).or().in(CadreArchiveItem::getId, parentItemIdList)
                 .or().eq(CadreArchiveItem::getParentId, archiveItemId)
+                .ne(StrUtil.isNotBlank(treeExcludeImageType), CadreArchiveItem::getItemType, treeExcludeImageType)
                 .orderByAsc(CadreArchiveItem::getParentId)
                 .orderByAsc(CadreArchiveItem::getSort)
                 .list();

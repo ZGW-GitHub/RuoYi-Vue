@@ -43,6 +43,10 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
      */
     @Override
     public CadreArchiveItemTreeResp tree(CadreArchiveItemTreeReq req) {
+        String treeIncludeImage = req.getTreeIncludeImage();
+        String treeExcludeImageType = StrUtil.isNotBlank(treeIncludeImage) ? (ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode().equals(treeIncludeImage)
+                ? ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode() : ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode()) : StrUtil.EMPTY;
+
         CadreArchive cadreArchive = cadreArchiveMapper.selectById(req.getArchiveId());
         if (cadreArchive == null) {
             return new CadreArchiveItemTreeResp();
@@ -50,12 +54,13 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
 
         List<CadreArchiveItem> itemList;
         if (req.getArchiveItemId() == null) {
-            itemList = cadreArchiveItemMapper.listByArchiveId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID));
+            itemList = cadreArchiveItemMapper.listByArchiveId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID), treeExcludeImageType);
         } else {
             List<String> parentItemIdList = Optional.of(req.getArchiveItemId()).map(cadreArchiveItemMapper::selectById)
                     .map(CadreArchiveItem::getAncestors).map(ancestors -> StrUtil.split(ancestors, ','))
                     .orElse(Collections.emptyList());
-            itemList = cadreArchiveItemMapper.listByArchiveIdAndItemId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID), req.getArchiveItemId(), parentItemIdList);
+            itemList = cadreArchiveItemMapper.listByArchiveIdAndItemId(Arrays.asList(req.getArchiveId(), CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID),
+                    req.getArchiveItemId(), parentItemIdList, treeExcludeImageType);
         }
 
         List<CadreArchiveItemTreeItem> treeItemList = BeanUtil.mapList(itemList, CadreArchiveItemTreeItem.class, (source, target) -> {
@@ -88,7 +93,7 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         gatherImage(cadreArchive, null, treeData, originalImageList, optimizeImageList);
 
         // 移除图片节点
-        if (req.getTreeIncludeImage() == null || !req.getTreeIncludeImage()) {
+        if (StrUtil.isBlank(treeIncludeImage)) {
             removeImageNode(treeData);
         }
 

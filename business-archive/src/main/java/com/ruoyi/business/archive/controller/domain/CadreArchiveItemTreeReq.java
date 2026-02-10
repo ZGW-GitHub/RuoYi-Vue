@@ -12,6 +12,6 @@ public class CadreArchiveItemTreeReq {
 
     private Long archiveItemId;
 
-    private Boolean treeIncludeImage;
+    private String treeIncludeImage;
 
 }
