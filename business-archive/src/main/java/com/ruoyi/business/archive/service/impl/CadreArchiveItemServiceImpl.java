@@ -43,8 +43,9 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
      */
     @Override
     public CadreArchiveItemTreeResp tree(CadreArchiveItemTreeReq req) {
-        String treeIncludeImage = req.getTreeIncludeImage();
-        String treeExcludeImageType = StrUtil.isNotBlank(treeIncludeImage) ? (ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode().equals(treeIncludeImage)
+        String archiveImageType = req.getArchiveImageType();
+        String catalogueTreeType = req.getCatalogueTreeType();
+        String treeExcludeImageType = StrUtil.isNotBlank(archiveImageType) ? (ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode().equals(archiveImageType)
                 ? ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode() : ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode()) : StrUtil.EMPTY;
 
         CadreArchive cadreArchive = cadreArchiveMapper.selectById(req.getArchiveId());
@@ -66,7 +67,8 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         List<CadreArchiveItemTreeItem> treeItemList = BeanUtil.mapList(itemList, CadreArchiveItemTreeItem.class, (source, target) -> {
             String materialDate = source.getMaterialDate();
             boolean isCommonItem = source.getArchiveId().equals(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID);
-            if (isCommonItem) {
+            if (isCommonItem || source.getItemType().equals(ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode())
+                    || source.getItemType().equals(ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode())) {
                 target.setTitle(source.getItemName());
             } else if (StrUtil.isBlank(materialDate)) {
                 target.setTitle(StrUtil.format("{}、{}", source.getSort(), source.getItemName()));
@@ -82,6 +84,13 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
             target.setKey(String.valueOf(source.getId()));
             target.setParentKey(String.valueOf(source.getParentId()));
             target.setAncestorsKey(source.getAncestors());
+
+            if (ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode().equals(source.getItemType())) {
+                target.setImageUri(CadreArchiveFileConstant.getImageUrl(cadreArchive.getArchiveFilePath(), source.getItemName(), ArchiveItemTypeEnum.ORIGINAL_IMAGE));
+            }
+            if (ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode().equals(source.getItemType())) {
+                target.setImageUri(CadreArchiveFileConstant.getImageUrl(cadreArchive.getArchiveFilePath(), source.getItemName(), ArchiveItemTypeEnum.OPTIMIZE_IMAGE));
+            }
         });
 
         // 构建树
@@ -93,7 +102,7 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         gatherImage(cadreArchive, null, treeData, originalImageList, optimizeImageList);
 
         // 移除图片节点
-        if (StrUtil.isBlank(treeIncludeImage)) {
+        if (!"print".equals(catalogueTreeType)) {
             removeImageNode(treeData);
         }
 
@@ -153,7 +162,7 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
                         .setKey(item.getKey())
                         .setParentKey(item.getParentKey())
                         .setAncestorsKey(item.getAncestorsKey())
-                        .setMaterialName(parent != null ? parent.getItemName() : StrUtil.EMPTY)
+                        .setMaterialName(getMaterialName(parent))
                         .setMaterialDate(parent != null ? parent.getMaterialDate() : StrUtil.EMPTY));
             } else if (ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode().equals(item.getItemType())) {
                 optimizeImageList.add(new CadreArchiveItemTreeResp.CadreArchiveImage()
@@ -163,10 +172,14 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
                         .setKey(item.getKey())
                         .setParentKey(item.getParentKey())
                         .setAncestorsKey(item.getAncestorsKey())
-                        .setMaterialName(parent != null ? parent.getItemName() : StrUtil.EMPTY)
+                        .setMaterialName(getMaterialName(parent))
                         .setMaterialDate(parent != null ? parent.getMaterialDate() : StrUtil.EMPTY));
             }
         });
+    }
+
+    private String getMaterialName(CadreArchiveItemTreeItem item) {
+        return item != null ? StrUtil.format("{} - {}、{}", item.getItemType(), item.getSort(), item.getItemName()) : StrUtil.EMPTY;
     }
 
 }

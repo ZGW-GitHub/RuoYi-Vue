@@ -28,4 +28,6 @@ public class CadreArchiveItemTreeItem extends TreeDTO<CadreArchiveItemTreeItem> 
     /** 顺序 */
     private Integer sort;
 
+    private String imageUri;
+
 }
