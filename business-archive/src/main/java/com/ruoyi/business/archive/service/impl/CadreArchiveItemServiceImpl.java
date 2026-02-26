@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.business.archive.constants.CadreArchiveFileConstant;
 import com.ruoyi.business.archive.controller.domain.*;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
+import com.ruoyi.business.archive.dal.dos.CadreArchiveDept;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveItem;
 import com.ruoyi.business.archive.dal.enums.ArchiveItemTypeEnum;
+import com.ruoyi.business.archive.dal.mapper.CadreArchiveDeptMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveItemMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveItemService;
@@ -34,6 +36,9 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
 
     @Resource
     private CadreArchiveItemMapper cadreArchiveItemMapper;
+
+    @Resource
+    private CadreArchiveDeptMapper cadreArchiveDeptMapper;
 
     /**
      * 树
@@ -106,10 +111,16 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
             removeImageNode(treeData);
         }
 
-        // 返回
+        Long deptId = cadreArchive.getDeptId();
+        CadreArchiveDept cadreArchiveDept = cadreArchiveDeptMapper.selectById(deptId);
+
         CadreArchiveResp cadreArchiveResp = new CadreArchiveResp();
         cadreArchiveResp.setCadreName(cadreArchive.getCadreName());
         cadreArchiveResp.setIdNumber(cadreArchive.getIdNumber());
+        cadreArchiveResp.setCreateTime(cadreArchive.getCreateTime());
+        cadreArchiveResp.setDeptInfo(cadreArchiveDept);
+
+        // 返回
         return new CadreArchiveItemTreeResp()
                 .setCadreArchiveInfo(cadreArchiveResp)
                 .setTreeData(treeData)

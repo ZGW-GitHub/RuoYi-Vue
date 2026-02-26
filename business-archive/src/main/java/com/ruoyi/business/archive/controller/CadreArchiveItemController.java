@@ -8,12 +8,8 @@ import com.ruoyi.business.archive.service.CadreArchiveItemService;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * 档案项表 控制层
@@ -35,11 +31,6 @@ public class CadreArchiveItemController {
     @GetMapping("page")
     public PageResp<CadreArchiveItemPageRecord> page(CadreArchiveItemPageReq req) {
         return cadreArchiveItemService.page(req);
-    }
-
-    @PostMapping("import")
-    public void importArchive(List<MultipartFile> fileList) {
-
     }
 
 }
