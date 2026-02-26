@@ -18,12 +18,14 @@
 package com.ruoyi.business.common.mybatis.component;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * @author Snow
@@ -36,7 +38,7 @@ public class BaseMetaObjectHandler implements MetaObjectHandler {
 	public void insertFill(MetaObject metaObject) {
 		// log.debug("start insert fill ....");
 
-		Long userId = SecurityUtils.getLoginUser().getUserId();
+        Long userId = Optional.ofNullable(SecurityUtils.getLoginUser()).map(LoginUser::getUserId).orElse(0L);
 		this.strictInsertFill(metaObject, "creator", Long.class, userId);
 		this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
 	}
@@ -45,7 +47,7 @@ public class BaseMetaObjectHandler implements MetaObjectHandler {
 	public void updateFill(MetaObject metaObject) {
 		// log.debug("start update fill ....");
 
-		Long userId = SecurityUtils.getLoginUser().getUserId();
+		Long userId = Optional.ofNullable(SecurityUtils.getLoginUser()).map(LoginUser::getUserId).orElse(0L);
 		this.strictUpdateFill(metaObject, "updater", Long.class, userId);
 		this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
 	}
