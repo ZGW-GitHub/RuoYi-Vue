@@ -8,12 +8,13 @@ import com.ruoyi.business.archive.controller.domain.CadreArchiveImportResp;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveResp;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
+import com.ruoyi.business.archive.dal.dos.CadreArchiveDept;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveItem;
+import com.ruoyi.business.archive.dal.mapper.CadreArchiveDeptMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveItemMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveService;
 import com.ruoyi.business.archive.util.CadreArchiveFileParseUtil;
-import com.ruoyi.business.common.domain.dto.DeptDTO;
 import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import com.ruoyi.business.common.mapper.SysMapper;
@@ -52,6 +53,9 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
     private CadreArchiveItemMapper cadreArchiveItemMapper;
 
     @Resource
+    private CadreArchiveDeptMapper cadreArchiveDeptMapper;
+
+    @Resource
     private CadreArchiveFileParseUtil cadreArchiveFileParseUtil;
 
     /**
@@ -73,14 +77,14 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
             return pageResp;
         }
 
-        List<DeptDTO> deptList = sysMapper.selectDeptById(deptIdList);
-        Map<String, DeptDTO> deptMap = deptList.stream().collect(Collectors.toMap(DeptDTO::getDeptId, Function.identity()));
+        List<CadreArchiveDept> deptList = cadreArchiveDeptMapper.selectByIds(deptIdList);
+        Map<Long, CadreArchiveDept> deptMap = deptList.stream().collect(Collectors.toMap(CadreArchiveDept::getId, Function.identity()));
         pageResp.getRecords().forEach(resp -> {
             if (resp.getDeptId() == null) {
                 return;
             }
 
-            DeptDTO deptDTO = deptMap.get(resp.getDeptId().toString());
+            CadreArchiveDept deptDTO = deptMap.get(resp.getDeptId());
             resp.setDeptInfo(deptDTO);
         });
 

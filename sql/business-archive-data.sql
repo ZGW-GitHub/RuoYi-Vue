@@ -31,6 +31,7 @@ VALUES (1, '一、履历材料', '一', 'bus_archive_item_type', '', '', 'Y', '0
        (18, '十、其他材料', '十', 'bus_archive_item_type', '', '', 'N', '0', 'admin', NOW(), '') ;
 
 
+-- 档案公共目录
 -- 4-2、职业(任职)资格和评(聘)专业技术职务(职称)材料
 delete from bus_cadre_archive_item where archive_id = 0;
 INSERT INTO bus_cadre_archive_item (id, archive_id, item_type, item_name, material_date, material_page_count, parent_id, ancestors, sort, deleted, creator, create_time, updater, update_time) VALUES (110, 0, '一', '一、履历材料', '', 0, 0, '0', 1, 0, 0, '2025-05-08 14:21:30', 0, '1000-01-01 00:00:00');
@@ -51,3 +52,7 @@ INSERT INTO bus_cadre_archive_item (id, archive_id, item_type, item_name, materi
 INSERT INTO bus_cadre_archive_item (id, archive_id, item_type, item_name, material_date, material_page_count, parent_id, ancestors, sort, deleted, creator, create_time, updater, update_time) VALUES (193, 0, '9-3', '9-3、出国(境)材料', '', 0, 0, '0', 16, 0, 0, '2025-05-08 14:21:30', 0, '1000-01-01 00:00:00');
 INSERT INTO bus_cadre_archive_item (id, archive_id, item_type, item_name, material_date, material_page_count, parent_id, ancestors, sort, deleted, creator, create_time, updater, update_time) VALUES (194, 0, '9-4', '9-4、参加会议的代表登记表等材料', '', 0, 0, '0', 17, 0, 0, '2025-05-08 14:21:30', 0, '1000-01-01 00:00:00');
 INSERT INTO bus_cadre_archive_item (id, archive_id, item_type, item_name, material_date, material_page_count, parent_id, ancestors, sort, deleted, creator, create_time, updater, update_time) VALUES (200, 0, '十', '十、其他材料', '', 0, 0, '0', 18, 0, 0, '2025-05-08 14:21:30', 0, '1000-01-01 00:00:00');
+
+-- 档案所属单位-根单位
+INSERT INTO bus_cadre_archive_dept (id, dept_name, parent_id, ancestors, sort, deleted, creator, create_time, updater, update_time)
+VALUES (100, '郑州大学', 0, '0', 1, 0, 0, NOW(), 0, '1000-01-01 00:00:00');

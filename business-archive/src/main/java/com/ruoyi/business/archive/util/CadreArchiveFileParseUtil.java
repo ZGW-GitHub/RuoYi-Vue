@@ -15,6 +15,7 @@ import com.ruoyi.business.archive.config.ArchiveConfig;
 import com.ruoyi.business.archive.constants.CadreArchiveFileConstant;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveImportResp;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
+import com.ruoyi.business.archive.dal.dos.CadreArchiveDept;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveItem;
 import com.ruoyi.business.archive.dal.enums.ArchiveItemTypeEnum;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveItemMapper;
@@ -52,7 +53,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 public class CadreArchiveFileParseUtil {
 
-    public static final Long CADRE_DEFAULT_DEPT_ID = 100L;
     public static final Long CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID = 0L;
 
     private static final Lock LOCK = new ReentrantLock();
@@ -260,7 +260,7 @@ public class CadreArchiveFileParseUtil {
         cadreArchive.setCadreName(userName);
         cadreArchive.setCadreNamePy(PinyinUtil.getFirstLetter(userName, StrUtil.EMPTY));
         cadreArchive.setIdNumber(idNumber);
-        cadreArchive.setDeptId(cadreArchive.getId() == null ? CADRE_DEFAULT_DEPT_ID : cadreArchive.getDeptId());
+        cadreArchive.setDeptId(cadreArchive.getId() == null ? CadreArchiveDept.ROOT_DEPT_ID : cadreArchive.getDeptId());
         cadreArchive.setBirthday(cadreBirthdayFormat(birthDate));
         cadreArchive.setGender("男".equals(sex) ? GenderEnum.MAN.getCode() : "2");
         cadreArchive.setEthnic(ethnic);
