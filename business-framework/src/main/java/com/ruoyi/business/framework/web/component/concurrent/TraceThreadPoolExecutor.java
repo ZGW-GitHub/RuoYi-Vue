@@ -22,6 +22,8 @@ import com.ruoyi.business.framework.web.request.RequestContextHelper;
 import com.ruoyi.business.framework.web.util.MDCUtil;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.concurrent.*;
 
@@ -49,10 +51,12 @@ public class TraceThreadPoolExecutor extends ThreadPoolExecutor {
 
 	@Override
 	public void execute(@NonNull final Runnable runnable) {
-		final RequestContext requestContext = RequestContextHelper.currentContext();
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final RequestContext requestContext = RequestContextHelper.currentContext();
 
 		Runnable runnableWrap = () -> {
 			try {
+                SecurityContextHolder.setContext(securityContext);
 				RequestContext ignore = requestContext == null
 						? RequestContextHelper.startContext(MDCUtil.generateTraceId(), true)
 						: RequestContextHelper.startChildContext(requestContext, true);
@@ -62,6 +66,7 @@ public class TraceThreadPoolExecutor extends ThreadPoolExecutor {
 				log.error("Trace 线程池执行任务发生异常: {}", e.getMessage(), e);
 				throw e;
 			} finally {
+                SecurityContextHolder.clearContext();
 				RequestContextHelper.clear(true);
 			}
 		};
