@@ -2,6 +2,7 @@ package com.ruoyi.business.archive.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveImportResp;
@@ -20,20 +21,25 @@ import com.ruoyi.business.common.domain.resp.PageResp;
 import com.ruoyi.business.common.mapper.SysMapper;
 import com.ruoyi.business.common.util.BeanUtil;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.file.FileUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 /**
  * 干部档案 Service 实现类
  *
@@ -135,6 +141,95 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
         Map<String, String> parseCadreIdNumberMap = new ConcurrentHashMap<>(fileList.size());
         cadreArchiveFileParseUtil.parseAsync(fileList, itemMap, parseCadreIdNumberMap);
         return cadreArchiveFileParseUtil.waitCompletion(new CadreArchiveImportResp().setTotalCount(fileList.size()));
+    }
+    /**
+     * 导出
+     *
+     * @param req      请求参数
+     * @param response 响应对象
+     */
+    @Override
+    public void export(IdsReq req, HttpServletResponse response) {
+        List<Long> ids = req.ids();
+
+        // 限制最大导出数量
+        if (ids.size() > 10) {
+            throw new ServiceException("批量导出最多支持10条记录");
+        }
+
+        // 查询档案记录
+        List<CadreArchive> archiveList = cadreArchiveMapper.selectByIds(ids);
+        if (CollUtil.isEmpty(archiveList)) {
+            throw new ServiceException("未找到要导出的档案记录");
+        }
+
+        // 临时目录
+        String tempDir = RuoYiConfig.getDownloadPath() + "temp_" + System.currentTimeMillis();
+        File tempDirFile = new File(tempDir);
+        if (!tempDirFile.exists()) {
+            boolean ignore = tempDirFile.mkdirs();
+        }
+
+        try {
+            List<File> zipFiles = new ArrayList<>();
+
+            // 压缩每个档案文件夹
+            for (CadreArchive archive : archiveList) {
+                String archiveFilePath = archive.getArchiveFilePath();
+                if (archiveFilePath == null || archiveFilePath.isEmpty()) {
+                    log.warn("档案ID: {} 的文件路径为空,跳过", archive.getId());
+                    continue;
+                }
+
+                // 转换为磁盘路径
+                String diskPath = RuoYiConfig.fileUrlToPath(archiveFilePath);
+                File archiveDir = new File(diskPath);
+
+                if (!archiveDir.exists() || !archiveDir.isDirectory()) {
+                    log.warn("档案ID: {} 的文件路径不存在或不是目录: {}", archive.getId(), diskPath);
+                    continue;
+                }
+
+                // 压缩单个档案文件夹
+                String zipFileName = archive.getCadreName() + "_" + archive.getIdNumber() + ".zip";
+                File zipFile = new File(tempDir, zipFileName);
+                ZipUtil.zip(archiveDir.getAbsolutePath(), zipFile.getAbsolutePath());
+                zipFiles.add(zipFile);
+            }
+
+            if (zipFiles.isEmpty()) {
+                throw new ServiceException("没有可导出的档案文件");
+            }
+
+            // 将所有压缩文件再次打包
+            String finalZipName = "档案批量导出_" + System.currentTimeMillis() + ".zip";
+            String finalZipPath = tempDir + File.separator + finalZipName;
+
+            // 创建最终压缩包
+            File[] zipFileArray = zipFiles.toArray(new File[0]);
+            ZipUtil.zip(new File(finalZipPath), false, zipFileArray);
+
+            // 设置响应头
+            response.setContentType("application/octet-stream");
+            response.setCharacterEncoding("utf-8");
+            FileUtils.setAttachmentResponseHeader(response, finalZipName);
+
+            // 输出文件
+            FileUtils.writeBytes(finalZipPath, response.getOutputStream());
+
+        } catch (IOException e) {
+            log.error("批量导出档案失败", e);
+            throw new ServiceException("批量导出档案失败: " + e.getMessage());
+        } finally {
+            // 清理临时文件
+            try {
+                if (tempDirFile.exists()) {
+                    FileUtil.del(tempDirFile);
+                }
+            } catch (Exception e) {
+                log.error("清理临时文件失败: {}", tempDir, e);
+            }
+        }
     }
 
 }

@@ -7,10 +7,10 @@ import com.ruoyi.business.archive.controller.domain.CadreArchiveResp;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
 import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
 /**
  * 干部档案 Service 接口
  * 
@@ -42,5 +42,12 @@ public interface CadreArchiveService extends IService<CadreArchive> {
     void delete(IdsReq req);
 
     void doDelete(IdsReq req);
+    /**
+     * 导出
+     *
+     * @param req      请求参数
+     * @param response 响应对象
+     */
+    void export(IdsReq req, HttpServletResponse response);
 
 }
