@@ -5,6 +5,7 @@ import com.ruoyi.business.archive.controller.domain.CadreArchiveImportResp;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveResp;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
+import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,5 +33,14 @@ public interface CadreArchiveService extends IService<CadreArchive> {
      * @param updateSupport 更新支持
      */
     CadreArchiveImportResp importArchive(List<MultipartFile> fileList, boolean updateSupport);
+
+    /**
+     * 删除
+     *
+     * @param req req
+     */
+    void delete(IdsReq req);
+
+    void doDelete(IdsReq req);
 
 }
