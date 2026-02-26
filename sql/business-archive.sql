@@ -39,5 +39,21 @@ create table bus_cadre_archive_item
     update_time         datetime               not null default '1000-01-01 00:00:00' comment '更新时间'
 ) comment '档案项表';
 
+drop table if exists bus_cadre_archive_dept;
+create table bus_cadre_archive_dept
+(
+    id                  bigint auto_increment comment 'id' primary key,
+    dept_name           varchar(30) default '' not null comment '部门名称',
+    parent_id           bigint      default 0  not null comment '父id',
+    ancestors           varchar(200) default '' not null comment '祖级列表',
+    sort                int         default 0  not null comment '顺序',
+
+    deleted             bigint                 not null default 0 comment '逻辑删除',
+    creator             bigint                 not null default 0 comment '创建人',
+    create_time         datetime               not null default CURRENT_TIMESTAMP comment '创建时间',
+    updater             bigint                 not null default 0 comment '更新人',
+    update_time         datetime               not null default '1000-01-01 00:00:00' comment '更新时间'
+) comment '干部档案部门表';
+
 
 

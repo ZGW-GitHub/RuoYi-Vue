@@ -4,13 +4,12 @@ import com.ruoyi.business.archive.controller.domain.CadreArchiveImportResp;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveResp;
 import com.ruoyi.business.archive.service.CadreArchiveService;
+import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -36,6 +35,11 @@ public class CadreArchiveController {
     @PostMapping("import")
     public CadreArchiveImportResp importArchive(List<MultipartFile> fileList, boolean updateSupport) {
         return cadreArchiveService.importArchive(fileList, updateSupport);
+    }
+
+    @DeleteMapping("delete")
+    public void delete(@Valid @RequestBody IdsReq req) {
+        cadreArchiveService.delete(req);
     }
 
 }
