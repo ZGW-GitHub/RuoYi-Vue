@@ -20,16 +20,19 @@ public class CadreArchiveDept extends BaseDO {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    // 根部门 ID
+    public static final Long ROOT_DEPT_ID = 100L;
+
     /** 部门名称 */
     private String deptName;
 
-    /** 父id */
+    /** 父部门ID */
     private Long parentId;
 
     /** 祖级列表 */
     private String ancestors;
 
-    /** 顺序 */
+    /** 排序 */
     private Integer sort;
 
 }

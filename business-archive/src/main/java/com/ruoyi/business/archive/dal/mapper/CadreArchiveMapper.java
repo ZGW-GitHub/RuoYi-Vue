@@ -1,10 +1,12 @@
 package com.ruoyi.business.archive.dal.mapper;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
+import com.ruoyi.business.archive.dal.dos.CadreArchiveDept;
 import com.ruoyi.business.common.mybatis.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -35,5 +37,24 @@ public interface CadreArchiveMapper extends BaseMapper<CadreArchive> {
                 .eq(CadreArchive::getIdNumber, idNumber)
                 .list();
     }
+
+    default void updateDeptId(List<Long> idList) {
+        if (CollUtil.isEmpty(idList)) {
+            return;
+        }
+
+        lambdaChainUpdateWrapper()
+                .set(CadreArchive::getDeptId, CadreArchiveDept.ROOT_DEPT_ID)
+                .in(CadreArchive::getDeptId, idList);
+
+    }
+
+    /**
+     * 查询部门下关联的档案数量
+     *
+     * @param deptId 部门ID
+     * @return 档案数量
+     */
+    Long countByDeptId(Long deptId);
 
 }
