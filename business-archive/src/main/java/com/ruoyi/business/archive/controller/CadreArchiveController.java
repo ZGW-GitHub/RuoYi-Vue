@@ -7,6 +7,7 @@ import com.ruoyi.business.archive.service.CadreArchiveService;
 import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,11 @@ public class CadreArchiveController {
     @DeleteMapping("delete")
     public void delete(@Valid @RequestBody IdsReq req) {
         cadreArchiveService.delete(req);
+    }
+
+    @PostMapping("export")
+    public void export(@Valid IdsReq req, HttpServletResponse response) {
+        cadreArchiveService.export(req, response);
     }
 
 }
