@@ -1,7 +1,11 @@
 package com.ruoyi.business.archive.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.PathUtil;
+import cn.hutool.core.thread.NamedThreadFactory;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
@@ -9,18 +13,21 @@ import cn.hutool.core.util.ZipUtil;
 import cn.hutool.extra.pinyin.PinyinUtil;
 import com.ruoyi.business.archive.config.ArchiveConfig;
 import com.ruoyi.business.archive.constants.CadreArchiveFileConstant;
+import com.ruoyi.business.archive.controller.domain.CadreArchiveImportResp;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveItem;
 import com.ruoyi.business.archive.dal.enums.ArchiveItemTypeEnum;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveItemMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveItemService;
-import com.ruoyi.business.archive.service.CadreArchiveService;
 import com.ruoyi.business.common.enums.GenderEnum;
 import com.ruoyi.business.common.enums.YNEnum;
+import com.ruoyi.business.framework.web.component.concurrent.TraceThreadPoolExecutor;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.exception.ServiceException;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,8 +38,12 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Snow
@@ -41,55 +52,146 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class CadreArchiveFileParseUtil {
 
-    private static final String UNZIP_DIR_NAME = "archive_import_unzip";
-    private static final Map<String, String> IMPORTING_MAP = new ConcurrentHashMap<>();
-
     public static final Long CADRE_DEFAULT_DEPT_ID = 100L;
     public static final Long CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID = 0L;
+
+    private static final Lock LOCK = new ReentrantLock();
+    private static final ExecutorService EXECUTOR_SERVICE = new TraceThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1000), new NamedThreadFactory("archive-import", true));
+    private static final CompletionService<String> COMPLETION_SERVICE = new ExecutorCompletionService<>(EXECUTOR_SERVICE);
 
     @Resource
     private CadreArchiveMapper cadreArchiveMapper;
 
     @Resource
-    private CadreArchiveService cadreArchiveService;
+    private CadreArchiveItemMapper cadreArchiveItemMapper;
 
     @Resource
     private CadreArchiveItemService cadreArchiveItemService;
 
-    @Resource
-    private CadreArchiveItemMapper cadreArchiveItemMapper;
+    public void parseAsync(List<MultipartFile> fileList, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
+        try {
+            boolean locked = LOCK.tryLock(6, TimeUnit.SECONDS);
+            if (!locked) {
+                throw new ServiceException("存在正在导入的档案任务, 请稍候再试！");
+            }
+        } catch (InterruptedException e) {
+            log.error("【 档案导入 】锁竞争异常: {}", e.getMessage(), e);
+            throw new ServiceException("存在正在导入的档案任务, 请稍候再试！");
+        }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void parse(MultipartFile file, Map<String, CadreArchiveItem> commonItemMap) {
-        String uploadFileName = file.getOriginalFilename();
-        try (InputStream inputStream = file.getInputStream();) {
-            parse(uploadFileName, inputStream, commonItemMap);
+        try {
+            CadreArchiveFileParseUtil parseService = (CadreArchiveFileParseUtil) AopContext.currentProxy();
+            fileList.forEach(file -> {
+                COMPLETION_SERVICE.submit(() -> parseService.parse(file, commonItemMap, parseCadreIdNumberMap));
+            });
         } catch (Exception e) {
-            log.error("【 档案导入 】文件: {}. 档案导入失败: {}", uploadFileName, e.getMessage(), e);
+            log.error("【 档案导入 】提交任务异常: {}", e.getMessage(), e);
+        }
+    }
+
+    public CadreArchiveImportResp waitCompletion(CadreArchiveImportResp resp) {
+        try {
+            Integer totalCount = resp.getTotalCount();
+
+            Integer failCount = 0;
+            Integer successCount = 0;
+            List<String> failFileList = new ArrayList<>(totalCount);
+            for (int i = 0; i < totalCount; i++) {
+                try {
+                    String result = COMPLETION_SERVICE.take().get();
+                    if (StrUtil.isBlank(result)) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        failFileList.add(result);
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    log.error("【 档案导入 】等待任务完成时发生异常: {}", e.getMessage(), e);
+                }
+            }
+
+            resp.setFailCount(failCount);
+            resp.setSuccessCount(successCount);
+            resp.setFailFileNameList(failFileList);
+
+            return resp;
+        } finally {
+            LOCK.unlock();
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void parse(String uploadFileName, InputStream inputStream, Map<String, CadreArchiveItem> commonItemMap) {
-        String unzipBaseDir = RuoYiConfig.getUploadPath() + FileUtil.FILE_SEPARATOR + UNZIP_DIR_NAME;
+    public String parse(MultipartFile file, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
+        String fileName = StrUtil.subBefore(file.getOriginalFilename(), StrUtil.DOT, true);
 
-        // 校验文件类型
-        // String fileType = FileTypeUtil.getType(inputStream);
-        // if (!fileType.equals("zip")) {
-        //     log.warn("【 档案导入 】文件: {}. 文件类型不正确：{}", uploadFileName, fileType);
-        //     return;
-        // }
+        try (InputStream inputStream = file.getInputStream()) {
+            Boolean success = parse(inputStream, fileName, commonItemMap, parseCadreIdNumberMap);
+            if (success) {
+                return StrUtil.EMPTY;
+            } else {
+                return file.getOriginalFilename();
+            }
+        } catch (Exception e) {
+            log.error("【 档案导入 】文件: {}. 档案导入失败: {}", fileName, e.getMessage(), e);
+            return file.getOriginalFilename();
+        }
+    }
 
-        // 解压
-        File unzipDir = new File(unzipBaseDir + FileUtil.FILE_SEPARATOR + IdUtil.fastSimpleUUID());
-        FileUtil.mkdir(unzipDir);
-        ZipUtil.unzip(inputStream, unzipDir, Charset.defaultCharset());
+    private Boolean parse(InputStream inputStream, String fileName, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
+        StopWatch stopWatch = StopWatch.create(IdUtil.fastSimpleUUID());
+        stopWatch.start();
 
+        String unzipDirName = fileName + "-" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_MS_FORMATTER);
+        log.debug("【 档案导入 】文件: {}. 开始处理.", unzipDirName);
+
+        Path unzipPath = null;
+        try {
+            // 校验文件类型
+            // String fileType = FileTypeUtil.getType(inputStream);
+            // if (!fileType.equals("zip")) {
+            //     log.warn("【 档案导入 】文件: {}. 文件类型不正确：{}", uploadFileName, fileType);
+            //     return;
+            // }
+
+            // 解压
+            unzipPath = PathUtil.mkdir(Path.of(ArchiveConfig.getUnzipDir() + FileUtil.FILE_SEPARATOR + unzipDirName));
+            ZipUtil.unzip(inputStream, unzipPath.toFile(), Charset.defaultCharset());
+            log.debug("【 档案导入 】文件: {}. 解压完成, 解压地址: {}", unzipDirName, unzipPath);
+
+            // 执行解析
+            List<String> oldArchiveFileUriList = doParse(unzipPath.toFile(), commonItemMap, parseCadreIdNumberMap);
+
+            // 删除旧档案
+            oldArchiveFileUriList.stream().map(RuoYiConfig::fileUrlToPath).forEach(item -> {
+                try {
+                    FileUtil.del(item);
+                } catch (Exception e) {
+                    log.error("【 档案导入 】文件: {}. 旧档案: {}, 删除异常: {}", unzipDirName, item, e.getMessage(), e);
+                }
+            });
+
+            return true;
+        } catch (Exception e) {
+            log.error("【 档案导入 】文件: {}. 档案导入失败: {}", unzipDirName, e.getMessage(), e);
+            return false;
+        } finally {
+            log.debug("【 档案导入 】文件: {}. 处理完成, 耗时: {}", unzipDirName, stopWatch.getTotalTimeMillis());
+            if (unzipPath != null) {
+                try {
+                    FileUtil.del(unzipPath.toFile());
+                } catch (Exception e) {
+                    log.error("【 档案导入 】文件: {}. 解压文件夹删除失败: {}", unzipDirName, e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    private List<String> doParse(File fileDir, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
         // 查找 xml 文件
-        Optional<File> xmlFIleOpt = FileUtil.loopFiles(unzipDir, item -> item.isFile() && item.getName().endsWith(".xml")).stream().findFirst();
+        Optional<File> xmlFIleOpt = FileUtil.loopFiles(fileDir, item -> item.isFile() && item.getName().endsWith(".xml")).stream().findFirst();
         if (xmlFIleOpt.isEmpty()) {
-            log.warn("【 档案导入 】文件: {}. 未找到 xml 文件", uploadFileName);
-            return;
+            log.warn("【 档案导入 】文件: {}. 未找到 xml 文件", fileDir.getName());
+            return Collections.emptyList();
         }
 
         // 读取 XML
@@ -103,46 +205,38 @@ public class CadreArchiveFileParseUtil {
         String cadreName = XmlUtil.getElement(personInfoElement, CadreArchiveFileConstant.USER_NAME).getTextContent();
         String idNumber = XmlUtil.getElement(personInfoElement, CadreArchiveFileConstant.USER_ID_NUMBER).getTextContent();
         if (StrUtil.isBlank(idNumber)) {
-            log.warn("【 档案导入 】文件: {}. 身份证号为空", uploadFileName);
-            return;
+            log.warn("【 档案导入 】文件: {}. 身份证号为空", fileDir.getName());
+            return Collections.emptyList();
         }
 
-        String preValue = IMPORTING_MAP.putIfAbsent(idNumber, "importing");
+        String preValue = parseCadreIdNumberMap.putIfAbsent(idNumber, "importing");
         if (StrUtil.isNotBlank(preValue)) {
-            log.warn("【 档案导入 】文件: {}. 身份证号重复导入：{}", uploadFileName, idNumber);
-            return;
+            log.warn("【 档案导入 】文件: {}. 身份证号重复导入：{}", fileDir.getName(), idNumber);
+            return Collections.emptyList();
         }
 
-        // 存储目录
-        // File archiveFileStorageDir = new File(RuoYiConfig.getUploadPath() + FileUtil.FILE_SEPARATOR + ARCHIVE_STORAGE_DIR_NAME);
-        // FileUtil.mkdir(archiveFileStorageDir);
-
+        // 文件夹重命名
         File sourceDir = xmlFile.getParentFile();
-        String archiveFileStorageDirName = StrUtil.format("{}-{}-{}", cadreName, idNumber, System.currentTimeMillis());
-        File archiveFileStoragePath = new File(ArchiveConfig.getStorageDir(), archiveFileStorageDirName);
-        try {
-            // 检查源目录权限
-            if (!sourceDir.canRead()) {
-                throw new RuntimeException("源目录无读取权限：" + sourceDir.getAbsolutePath());
-            }
+        String archiveStorageDirName = StrUtil.format("{}-{}-{}", cadreName, idNumber, System.currentTimeMillis());
+        sourceDir = FileUtil.rename(sourceDir, archiveStorageDirName, true);
 
-            // 检查目标目录权限
-            File archiveFileStorageDir = new File(ArchiveConfig.getStorageDir());
-            if (!archiveFileStorageDir.canWrite()) {
-                throw new RuntimeException("目标目录无写入权限：" + archiveFileStorageDir.getAbsolutePath());
-            }
+        // 文件移动
+        File archiveStoragePath = new File(ArchiveConfig.getStorageDir(), archiveStorageDirName);
+        log.debug("【 档案导入 】文件: {}. 文件转存开始, 源地址: {}, 目标地址: {}", fileDir.getName(), sourceDir.getAbsolutePath(), archiveStoragePath.getAbsolutePath());
+        FileUtil.move(sourceDir, new File(ArchiveConfig.getStorageDir()), true);
+        log.debug("【 档案导入 】文件: {}. 文件转存完成.", fileDir.getName());
 
-            // 移动目录
-            sourceDir = FileUtil.rename(sourceDir, archiveFileStorageDirName, true);
-            FileUtil.move(sourceDir, archiveFileStorageDir, true);
-        } catch (Exception e) {
-            log.error("【 档案导入 】文件: {}. 文件转存失败: {}", sourceDir, e.getMessage(), e);
-            return;
+        // 查询旧档案
+        List<CadreArchive> oldCadreArchiveList = cadreArchiveMapper.listByIdNumber(idNumber);
+        if (CollUtil.isNotEmpty(oldCadreArchiveList)) {
+            List<Long> oldCadreArchiveIdList = oldCadreArchiveList.stream().map(CadreArchive::getId).toList();
+            cadreArchiveMapper.deleteByIds(oldCadreArchiveIdList);
+            cadreArchiveItemMapper.deleteByArchiveId(oldCadreArchiveIdList);
         }
 
         // 处理干部信息
         CadreArchive cadreArchive = processCadresInfo(personInfoElement, idNumber, cadreName);
-        cadreArchive.setArchiveFilePath(RuoYiConfig.filePathToUrl(archiveFileStoragePath.getAbsolutePath()));
+        cadreArchive.setArchiveFilePath(RuoYiConfig.filePathToUrl(archiveStoragePath.getAbsolutePath()));
         cadreArchiveMapper.insert(cadreArchive);
 
         // 档案条目信息
@@ -152,10 +246,12 @@ public class CadreArchiveFileParseUtil {
                 .flatMap(Collection::stream)
                 .toList();
         cadreArchiveItemService.saveBatch(cadreArchiveItemList);
+
+        // 返回旧档案文件地址
+        return oldCadreArchiveList.stream().map(CadreArchive::getArchiveFilePath).toList();
     }
 
     private CadreArchive processCadresInfo(Element personInfo, String idNumber, String userName) {
-
         String sex = XmlUtil.getElement(personInfo, CadreArchiveFileConstant.USER_SEX).getTextContent();
         String ethnic = XmlUtil.getElement(personInfo, CadreArchiveFileConstant.USER_ETHNIC).getTextContent();
         String birthDate = XmlUtil.getElement(personInfo, CadreArchiveFileConstant.USER_BIRTHDAY).getTextContent();
@@ -253,7 +349,7 @@ public class CadreArchiveFileParseUtil {
         return imagePathList;
     }
 
-    public String cadreBirthdayFormat(String birthday) {
+    private String cadreBirthdayFormat(String birthday) {
         if (StrUtil.isBlank(birthday)) {
             return StrUtil.EMPTY;
         }
