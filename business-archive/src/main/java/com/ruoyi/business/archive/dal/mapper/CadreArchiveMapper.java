@@ -8,6 +8,8 @@ import com.ruoyi.business.archive.dal.dos.CadreArchive;
 import com.ruoyi.business.common.mybatis.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 干部档案 Mapper 接口
  *
@@ -26,6 +28,12 @@ public interface CadreArchiveMapper extends BaseMapper<CadreArchive> {
         return wrapper.eq(req.getDeptId() != null, CadreArchive::getDeptId, req.getDeptId())
                 .eq(StrUtil.isNotBlank(req.getArchiveStockStatus()), CadreArchive::getArchiveStockStatus, req.getArchiveStockStatus())
                 .page(page);
+    }
+
+    default List<CadreArchive> listByIdNumber(String idNumber) {
+        return lambdaChainQueryWrapper()
+                .eq(CadreArchive::getIdNumber, idNumber)
+                .list();
     }
 
 }

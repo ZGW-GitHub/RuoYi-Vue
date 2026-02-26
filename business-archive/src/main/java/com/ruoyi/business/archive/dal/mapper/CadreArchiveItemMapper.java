@@ -59,4 +59,10 @@ public interface CadreArchiveItemMapper extends BaseMapper<CadreArchiveItem> {
      */
     Page<CadreArchiveItemPageRecord> selectPages(Page<CadreArchiveItemPageRecord> page, @Param("req") CadreArchiveItemPageReq req);
 
+    default void deleteByArchiveId(List<Long> oldCadreArchiveIdList) {
+        lambdaChainUpdateWrapper()
+                .in(CadreArchiveItem::getArchiveId, oldCadreArchiveIdList)
+                .remove();
+    }
+
 }

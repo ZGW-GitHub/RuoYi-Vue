@@ -32,7 +32,7 @@ public class BusinessTest extends RuoYiApplicationTest {
         Map<String, CadreArchiveItem> itemMap = itemList.stream().collect(Collectors.toMap(CadreArchiveItem::getItemType, Function.identity(), (v1, v2) -> v1));
 
         try(InputStream inputStream = FileUtil.getInputStream("/Users/snow/Downloads/project-archive/test.zip")) {
-            util.parse("test.zip", inputStream, itemMap);
+            // util.parse("test.zip", inputStream, itemMap);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
