@@ -16,7 +16,9 @@ create table bus_cadre_archive
     creator              bigint       not null default 0 comment '创建人',
     create_time          datetime     not null default CURRENT_TIMESTAMP comment '创建时间',
     updater              bigint       not null default 0 comment '更新人',
-    update_time          datetime     not null default '1000-01-01 00:00:00' comment '更新时间'
+    update_time          datetime     not null default '1000-01-01 00:00:00' comment '更新时间',
+    index inx_idNumber(id_number, deleted),
+    index inx_deptId(dept_id, deleted)
 ) comment '干部档案表';
 
 drop table if exists bus_cadre_archive_item;
@@ -36,7 +38,9 @@ create table bus_cadre_archive_item
     creator             bigint                  not null default 0 comment '创建人',
     create_time         datetime                not null default CURRENT_TIMESTAMP comment '创建时间',
     updater             bigint                  not null default 0 comment '更新人',
-    update_time         datetime                not null default '1000-01-01 00:00:00' comment '更新时间'
+    update_time         datetime                not null default '1000-01-01 00:00:00' comment '更新时间',
+
+    index inx_archiveId(archive_id, deleted)
 ) comment '档案项表';
 
 drop table if exists bus_cadre_archive_dept;

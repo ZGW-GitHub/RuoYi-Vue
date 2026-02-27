@@ -73,7 +73,7 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
      */
     @Override
     public PageResp<CadreArchiveResp> page(CadreArchivePageReq req) {
-        Page<CadreArchive> page = cadreArchiveMapper.selectPages(req.mybatisPage(), req);
+        Page<CadreArchive> page = cadreArchiveMapper.page(req.mybatisPage(), req);
         PageResp<CadreArchiveResp> pageResp = PageResp.of(page.getTotal(), BeanUtil.mapList(page.getRecords(), CadreArchiveResp.class));
         if (CollUtil.isEmpty(pageResp.getRecords())) {
             return pageResp;

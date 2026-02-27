@@ -1,8 +1,6 @@
 package com.ruoyi.business.archive.dal.mapper;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
@@ -22,17 +20,7 @@ import java.util.List;
 @Mapper
 public interface CadreArchiveMapper extends BaseMapper<CadreArchive> {
 
-    default Page<CadreArchive> selectPages(Page<CadreArchive> page, CadreArchivePageReq req) {
-        LambdaQueryChainWrapper<CadreArchive> wrapper = lambdaChainQueryWrapper();
-        if (StrUtil.isNotBlank(req.getCadreName())) {
-            wrapper.like(CadreArchive::getCadreName, req.getCadreName()).or()
-                    .likeRight(CadreArchive::getCadreNamePy, req.getCadreName());
-        }
-
-        return wrapper.eq(req.getDeptId() != null, CadreArchive::getDeptId, req.getDeptId())
-                .eq(StrUtil.isNotBlank(req.getArchiveStockStatus()), CadreArchive::getArchiveStockStatus, req.getArchiveStockStatus())
-                .page(page);
-    }
+    Page<CadreArchive> page(Page<CadreArchive> page, @Param("req") CadreArchivePageReq req);
 
     default List<CadreArchive> listByIdNumber(String idNumber) {
         return lambdaChainQueryWrapper()

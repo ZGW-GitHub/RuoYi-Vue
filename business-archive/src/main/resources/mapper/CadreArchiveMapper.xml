@@ -18,4 +18,22 @@
         </foreach>
         group by dept_id
     </select>
+
+    <select id="page" resultType="com.ruoyi.business.archive.dal.dos.CadreArchive">
+        select distinct a.*
+        from bus_cadre_archive a left join bus_cadre_archive_dept d on a.dept_id = d.id
+        where a.deleted = 0
+        <if test="req.cadreName != null and req.cadreName != ''">
+            and (a.cadre_name like concat('%', #{req.cadreName}, '%') or a.cadre_name_py like concat(#{req.cadreName}, '%'))
+        </if>
+        <if test="req.deptId != null">
+            and (a.dept_id = #{req.deptId} or concat(',', d.ancestors, ',') like concat('%,', #{req.deptId}, ',%'))
+        </if>
+        <if test="req.archiveDeptName != null and req.archiveDeptName != ''">
+            and d.dept_name like concat('%', #{req.archiveDeptName}, '%')
+        </if>
+        <if test="req.archiveStockStatus != null and req.archiveStockStatus != ''">
+            and a.archive_stock_status = #{req.archiveStockStatus}
+        </if>
+    </select>
 </mapper>
