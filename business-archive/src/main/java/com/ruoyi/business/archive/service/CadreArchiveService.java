@@ -50,4 +50,22 @@ public interface CadreArchiveService extends IService<CadreArchive> {
      */
     void export(IdsReq req, HttpServletResponse response);
 
+    /**
+     * 更新在库状态
+     *
+     * @param id                  档案ID
+     * @param archiveStockStatus  在库状态
+     */
+    void updateStockStatus(Long id, String archiveStockStatus);
+
+    /**
+     * 更新单位
+     *
+     * @param id      档案ID
+     * @param deptId  单位ID
+     */
+    void updateDept(Long id, Long deptId);
+
+
+
 }

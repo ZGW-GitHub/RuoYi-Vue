@@ -20,8 +20,9 @@ import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import com.ruoyi.business.common.mapper.SysMapper;
 import com.ruoyi.business.common.util.BeanUtil;
+import com.ruoyi.business.common.web.exception.BizException;
+import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
 import com.ruoyi.common.config.RuoYiConfig;
-import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.file.FileUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -154,13 +155,13 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
 
         // 限制最大导出数量
         if (ids.size() > 10) {
-            throw new ServiceException("批量导出最多支持10条记录");
+            throw new BizException(BizExceptionCode.MESSAGE, "批量导出最多支持10条记录");
         }
 
         // 查询档案记录
         List<CadreArchive> archiveList = cadreArchiveMapper.selectByIds(ids);
         if (CollUtil.isEmpty(archiveList)) {
-            throw new ServiceException("未找到要导出的档案记录");
+            throw new BizException(BizExceptionCode.MESSAGE, "未找到要导出的档案记录");
         }
 
         // 临时目录
@@ -198,7 +199,7 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
             }
 
             if (zipFiles.isEmpty()) {
-                throw new ServiceException("没有可导出的档案文件");
+                throw new BizException(BizExceptionCode.MESSAGE, "没有可导出的档案文件");
             }
 
             // 将所有压缩文件再次打包
@@ -219,7 +220,7 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
 
         } catch (IOException e) {
             log.error("批量导出档案失败", e);
-            throw new ServiceException("批量导出档案失败: " + e.getMessage());
+            throw new BizException(BizExceptionCode.MESSAGE, "批量导出档案失败: " + e.getMessage());
         } finally {
             // 清理临时文件
             try {
@@ -230,6 +231,34 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
                 log.error("清理临时文件失败: {}", tempDir, e);
             }
         }
+    }
+
+    /**
+     * 更新在库状态
+     *
+     * @param id                  档案ID
+     * @param archiveStockStatus  在库状态
+     */
+    @Override
+    public void updateStockStatus(Long id, String archiveStockStatus) {
+        CadreArchive cadreArchive = new CadreArchive();
+        cadreArchive.setId(id);
+        cadreArchive.setArchiveStockStatus(archiveStockStatus);
+        cadreArchiveMapper.updateById(cadreArchive);
+    }
+
+    /**
+     * 更新单位
+     *
+     * @param id      档案ID
+     * @param deptId  单位ID
+     */
+    @Override
+    public void updateDept(Long id, Long deptId) {
+        CadreArchive cadreArchive = new CadreArchive();
+        cadreArchive.setId(id);
+        cadreArchive.setDeptId(deptId);
+        cadreArchiveMapper.updateById(cadreArchive);
     }
 
 }
