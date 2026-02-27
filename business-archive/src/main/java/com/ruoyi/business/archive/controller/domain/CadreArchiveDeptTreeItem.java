@@ -29,7 +29,7 @@ public class CadreArchiveDeptTreeItem extends TreeDTO<CadreArchiveDeptTreeItem> 
     /**
      * 档案数
      */
-    // private Integer archiveCount;
+    private Long archiveCount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
