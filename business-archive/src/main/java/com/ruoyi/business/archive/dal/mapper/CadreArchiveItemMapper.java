@@ -5,12 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveItemPageRecord;
 import com.ruoyi.business.archive.controller.domain.CadreArchiveItemPageReq;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveItem;
-import com.ruoyi.business.archive.dal.enums.ArchiveItemTypeEnum;
 import com.ruoyi.business.common.mybatis.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,15 +18,6 @@ import java.util.List;
  */
 @Mapper
 public interface CadreArchiveItemMapper extends BaseMapper<CadreArchiveItem> {
-
-    default List<CadreArchiveItem> listByArchiveIdExcludedImage(List<Long> archiveIdList) {
-        return lambdaChainQueryWrapper()
-                .in(CadreArchiveItem::getArchiveId, archiveIdList)
-                .notIn(CadreArchiveItem::getItemType, Arrays.asList(ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode(), ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode()))
-                .orderByAsc(CadreArchiveItem::getParentId)
-                .orderByAsc(CadreArchiveItem::getSort)
-                .list();
-    }
 
     default List<CadreArchiveItem> listByArchiveId(List<Long> archiveIdList, String treeExcludeImageType) {
         return lambdaChainQueryWrapper()
@@ -42,8 +31,7 @@ public interface CadreArchiveItemMapper extends BaseMapper<CadreArchiveItem> {
     default List<CadreArchiveItem> listByArchiveIdAndItemId(List<Long> archiveIdList, Long archiveItemId, List<String> parentItemIdList, String treeExcludeImageType) {
         return lambdaChainQueryWrapper()
                 .in(CadreArchiveItem::getArchiveId, archiveIdList)
-                .eq(CadreArchiveItem::getId, archiveItemId).or().in(CadreArchiveItem::getId, parentItemIdList)
-                .or().eq(CadreArchiveItem::getParentId, archiveItemId)
+                .eq(CadreArchiveItem::getId, archiveItemId).or().in(CadreArchiveItem::getId, parentItemIdList).or().eq(CadreArchiveItem::getParentId, archiveItemId)
                 .ne(StrUtil.isNotBlank(treeExcludeImageType), CadreArchiveItem::getItemType, treeExcludeImageType)
                 .orderByAsc(CadreArchiveItem::getParentId)
                 .orderByAsc(CadreArchiveItem::getSort)

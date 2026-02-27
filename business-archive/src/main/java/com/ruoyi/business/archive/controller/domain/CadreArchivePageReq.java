@@ -15,7 +15,7 @@ public class CadreArchivePageReq extends PageReq {
 
     private String cadreName;
 
-    private String cadreDeptName;
+    private String archiveDeptName;
 
     private String archiveStockStatus;
 
