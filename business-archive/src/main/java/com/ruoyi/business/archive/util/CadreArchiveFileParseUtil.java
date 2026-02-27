@@ -194,8 +194,10 @@ public class CadreArchiveFileParseUtil {
             return Collections.emptyList();
         }
 
-        // 读取 XML
         File xmlFile = xmlFIleOpt.get();
+        log.info("【 档案导入 】文件: {}. XML文件: {}", fileDir.getName(), xmlFile.getAbsolutePath());
+
+        // 读取 XML
         Document document = XmlUtil.readXML(xmlFile);
         Element rootElement = document.getDocumentElement(); // 获取根元素
         Element personInfoElement = XmlUtil.getElement(rootElement, CadreArchiveFileConstant.USER_BASIC_INFO); // 人员基本信息
