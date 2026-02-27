@@ -23,9 +23,10 @@ import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveItemService;
 import com.ruoyi.business.common.enums.GenderEnum;
 import com.ruoyi.business.common.enums.YNEnum;
+import com.ruoyi.business.common.web.exception.BizException;
+import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
 import com.ruoyi.business.framework.web.component.concurrent.TraceThreadPoolExecutor;
 import com.ruoyi.common.config.RuoYiConfig;
-import com.ruoyi.common.exception.ServiceException;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
@@ -72,11 +73,11 @@ public class CadreArchiveFileParseUtil {
         try {
             boolean locked = LOCK.tryLock(6, TimeUnit.SECONDS);
             if (!locked) {
-                throw new ServiceException("存在正在导入的档案任务, 请稍候再试！");
+                throw new BizException(BizExceptionCode.MESSAGE, "存在正在导入的档案任务, 请稍候再试！");
             }
         } catch (InterruptedException e) {
             log.error("【 档案导入 】锁竞争异常: {}", e.getMessage(), e);
-            throw new ServiceException("存在正在导入的档案任务, 请稍候再试！");
+            throw new BizException(BizExceptionCode.MESSAGE, "存在正在导入的档案任务, 请稍候再试！");
         }
 
         try {

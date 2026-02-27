@@ -2,6 +2,8 @@ package com.ruoyi.business.archive.config;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.ruoyi.business.common.web.exception.BizException;
+import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,10 +33,10 @@ public class ArchiveConfig {
     @PostConstruct
     public void afterPropertiesSet() {
         if (StrUtil.isBlank(unzipDir)) {
-            throw new RuntimeException("档案导入解压目录为空");
+            throw new BizException(BizExceptionCode.MESSAGE, "档案导入解压目录为空");
         }
         if (StrUtil.isBlank(storageDir)) {
-            throw new RuntimeException("档案存储目录为空");
+            throw new BizException(BizExceptionCode.MESSAGE, "档案存储目录为空");
         }
 
         FileUtil.mkdir(unzipDir);

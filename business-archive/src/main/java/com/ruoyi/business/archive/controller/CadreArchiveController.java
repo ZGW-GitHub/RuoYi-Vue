@@ -9,6 +9,7 @@ import com.ruoyi.business.common.domain.resp.PageResp;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +47,16 @@ public class CadreArchiveController {
     @PostMapping("export")
     public void export(@Valid IdsReq req, HttpServletResponse response) {
         cadreArchiveService.export(req, response);
+    }
+
+    @PutMapping("updateDept")
+    public void updateDept(@RequestParam Long id, @RequestParam @NotNull Long deptId) {
+        cadreArchiveService.updateDept(id, deptId);
+    }
+
+    @PutMapping("updateStockStatus")
+    public void updateStockStatus(@RequestParam Long id, @RequestParam String archiveStockStatus) {
+        cadreArchiveService.updateStockStatus(id, archiveStockStatus);
     }
 
 }
