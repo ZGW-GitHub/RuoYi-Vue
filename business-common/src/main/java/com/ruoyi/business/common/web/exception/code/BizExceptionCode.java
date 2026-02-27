@@ -35,16 +35,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BizExceptionCode implements ExceptionCode {
 
-	/**
-	 * Util 异常
-	 */
-	UTIL_BEAN_MAP_EXCEPTION(112001, "BeanUtil#map 异常，source 为 null"),
+    MESSAGE(65535, "请求处理异常"),
 
 	/**
 	 * 参数异常
 	 */
 	PARAMS_ERROR(4001, "参数异常"),
-	PARAMS_VALIDATION_EXCEPTION(4002, "非法参数");
+	PARAMS_VALIDATION_EXCEPTION(4002, "非法参数"),
+    ;
 
 	private final int    code;
 	private final String message;
