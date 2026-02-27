@@ -72,9 +72,11 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         List<CadreArchiveItemTreeItem> treeItemList = BeanUtil.mapList(itemList, CadreArchiveItemTreeItem.class, (source, target) -> {
             String materialDate = source.getMaterialDate();
             boolean isCommonItem = source.getArchiveId().equals(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID);
-            if (isCommonItem || source.getItemType().equals(ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode())
-                    || source.getItemType().equals(ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode())) {
+            if (isCommonItem) {
                 target.setTitle(source.getItemName());
+            } else if (source.getItemType().equals(ArchiveItemTypeEnum.ORIGINAL_IMAGE.getCode())
+                    || source.getItemType().equals(ArchiveItemTypeEnum.OPTIMIZE_IMAGE.getCode())) {
+                target.setTitle(source.getSort().toString());
             } else if (StrUtil.isBlank(materialDate)) {
                 target.setTitle(StrUtil.format("{}、{}", source.getSort(), source.getItemName()));
             } else {
