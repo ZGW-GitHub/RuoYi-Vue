@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.business.archive.controller.domain.CadreArchivePageReq;
 import com.ruoyi.business.archive.dal.dos.CadreArchive;
 import com.ruoyi.business.archive.dal.dos.CadreArchiveDept;
+import com.ruoyi.business.common.domain.dto.CountDTO;
 import com.ruoyi.business.common.mybatis.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -52,9 +54,11 @@ public interface CadreArchiveMapper extends BaseMapper<CadreArchive> {
     /**
      * 查询部门下关联的档案数量
      *
-     * @param deptId 部门ID
+     * @param deptIdList 部门ID列表
      * @return 档案数量
      */
-    Long countByDeptId(Long deptId);
+    List<CountDTO> countByDeptId(@Param("deptIdList") List<Long> deptIdList);
+
+    List<CountDTO> countForDeptId();
 
 }

@@ -9,6 +9,7 @@ import com.ruoyi.business.archive.dal.dos.CadreArchiveDept;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveDeptMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveDeptService;
+import com.ruoyi.business.common.domain.dto.CountDTO;
 import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.util.BeanUtil;
 import com.ruoyi.business.common.util.TreeUtil;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 干部档案部门表 服务实现
@@ -47,14 +50,52 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
             return Collections.emptyList();
         }
 
+        // 根据部门统计档案
+        List<CountDTO> countList = cadreArchiveMapper.countForDeptId();
+        Map<String, Long> countMap = countList.stream().collect(Collectors.toMap(item -> item.getIdNumber().toString(), CountDTO::getCount, (o, n) -> o));
+
+        // 构建 resp
         List<CadreArchiveDeptTreeItem> treeItemList = BeanUtil.mapList(deptList, CadreArchiveDeptTreeItem.class, (source, target) -> {
             target.setKey(String.valueOf(source.getId()));
             target.setTitle(source.getDeptName());
             target.setParentKey(String.valueOf(source.getParentId()));
             target.setAncestorsKey(source.getAncestors());
+            target.setArchiveCount(countMap.getOrDefault(source.getId().toString(), 0L));
         });
 
-        return TreeUtil.buildTree(treeItemList);
+        List<CadreArchiveDeptTreeItem> respList = TreeUtil.buildTree(treeItemList);
+        calcTotalArchiveCount(respList);
+
+        return respList;
+    }
+
+    /**
+     * 递归计算并累加子节点的档案数
+     */
+    private Long calcTotalArchiveCount(List<CadreArchiveDeptTreeItem> treeList) {
+        if (CollUtil.isEmpty(treeList)) {
+            return 0L;
+        }
+
+        long totalCount = 0L;
+        for (CadreArchiveDeptTreeItem item : treeList) {
+            // 获取当前节点的档案数
+            long currentCount = item.getArchiveCount() != null ? item.getArchiveCount() : 0L;
+
+            // 递归计算子节点的档案数
+            long childrenCount = 0L;
+            if (CollUtil.isNotEmpty(item.getChildren())) {
+                childrenCount = calcTotalArchiveCount(item.getChildren());
+            }
+
+            // 累加当前节点和子节点的档案数
+            long itemTotalCount = currentCount + childrenCount;
+            item.setArchiveCount(itemTotalCount);
+
+            totalCount += itemTotalCount;
+        }
+
+        return totalCount;
     }
 
     /**
@@ -142,6 +183,11 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
     public void delete(IdsReq req) {
         List<Long> idList = req.ids();
 
+        // 统计档案数
+        List<CountDTO> countList = cadreArchiveMapper.countByDeptId(idList);
+        Map<Long, Long> countMap = countList.stream().collect(Collectors.toMap(CountDTO::getIdNumber, CountDTO::getCount, (o, n) -> o));
+
+        // 遍历处理
         idList.forEach(id -> {
             // 检查子部门
             Long childCount = cadreArchiveDeptMapper.countChildren(id);
@@ -150,7 +196,7 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
             }
 
             // 检查关联档案
-            Long archiveCount = cadreArchiveMapper.countByDeptId(id);
+            Long archiveCount = countMap.getOrDefault(id, 0L);
             if (archiveCount > 0) {
                 throw new BizException(BizExceptionCode.PARAMS_ERROR, "单位下存在档案数据，不允许删除！");
             }
