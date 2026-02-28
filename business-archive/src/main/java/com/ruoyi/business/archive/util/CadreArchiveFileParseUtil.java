@@ -69,7 +69,7 @@ public class CadreArchiveFileParseUtil {
     @Resource
     private CadreArchiveItemService cadreArchiveItemService;
 
-    public void parseAsync(List<MultipartFile> fileList, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
+    public <F> void parseAsync(List<F> fileList, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
         try {
             boolean locked = LOCK.tryLock(6, TimeUnit.SECONDS);
             if (!locked) {
@@ -83,7 +83,11 @@ public class CadreArchiveFileParseUtil {
         try {
             CadreArchiveFileParseUtil parseService = (CadreArchiveFileParseUtil) AopContext.currentProxy();
             fileList.forEach(file -> {
-                COMPLETION_SERVICE.submit(() -> parseService.parse(file, commonItemMap, parseCadreIdNumberMap));
+                if (file instanceof File simpleFile) {
+                    COMPLETION_SERVICE.submit(() -> parseService.parse(simpleFile, commonItemMap, parseCadreIdNumberMap));
+                } else if (file instanceof MultipartFile multipartFile) {
+                    COMPLETION_SERVICE.submit(() -> parseService.parse(multipartFile, commonItemMap, parseCadreIdNumberMap));
+                }
             });
         } catch (Exception e) {
             log.error("【 档案导入 】提交任务异常: {}", e.getMessage(), e);
@@ -123,67 +127,114 @@ public class CadreArchiveFileParseUtil {
 
     @Transactional(rollbackFor = Exception.class)
     public String parse(MultipartFile file, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
-        String fileName = StrUtil.subBefore(file.getOriginalFilename(), StrUtil.DOT, true);
-
-        try (InputStream inputStream = file.getInputStream()) {
-            Boolean success = parse(inputStream, fileName, commonItemMap, parseCadreIdNumberMap);
-            if (success) {
-                return StrUtil.EMPTY;
-            } else {
-                return file.getOriginalFilename();
-            }
-        } catch (Exception e) {
-            log.error("【 档案导入 】文件: {}. 档案导入失败: {}", fileName, e.getMessage(), e);
-            return file.getOriginalFilename();
-        }
-    }
-
-    private Boolean parse(InputStream inputStream, String fileName, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
         StopWatch stopWatch = StopWatch.create(IdUtil.fastSimpleUUID());
         stopWatch.start();
 
-        String unzipDirName = fileName + "-" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_MS_FORMATTER);
-        log.debug("【 档案导入 】文件: {}. 开始处理.", unzipDirName);
+        File archiveFilePath = null;
+        String fileName = file.getOriginalFilename();
+        log.debug("【 档案导入 】M文件: {}. 开始处理.", fileName);
 
-        Path unzipPath = null;
         try {
             // 校验文件类型
-            // String fileType = FileTypeUtil.getType(inputStream);
-            // if (!fileType.equals("zip")) {
-            //     log.warn("【 档案导入 】文件: {}. 文件类型不正确：{}", uploadFileName, fileType);
-            //     return;
-            // }
+            if (!StrUtil.endWith(fileName, ".zip")) {
+                log.warn("【 档案导入 】M文件: {}. 文件类型不正确", fileName);
+                return fileName;
+            }
 
-            // 解压
-            unzipPath = PathUtil.mkdir(Path.of(ArchiveConfig.getUnzipDir() + FileUtil.FILE_SEPARATOR + unzipDirName));
-            ZipUtil.unzip(inputStream, unzipPath.toFile(), Charset.defaultCharset());
-            log.debug("【 档案导入 】文件: {}. 解压完成, 解压地址: {}", unzipDirName, unzipPath);
+            String fileNameNoType = StrUtil.subBefore(fileName, StrUtil.DOT, true);
+            String unzipDirName = fileNameNoType + "-" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_MS_FORMATTER);
+
+            try (InputStream inputStream = file.getInputStream()) {
+                Path unzipPath = PathUtil.mkdir(Path.of(ArchiveConfig.getUnzipDir() + FileUtil.FILE_SEPARATOR + unzipDirName));
+                ZipUtil.unzip(inputStream, unzipPath.toFile(), Charset.defaultCharset());
+                log.debug("【 档案导入 】M文件: {}. 解压完成, 解压地址: {}", unzipDirName, unzipPath);
+                archiveFilePath = unzipPath.toFile();
+            } catch (Exception e) {
+                log.error("【 档案导入 】M文件: {}. 解压异常: {}", fileName, e.getMessage(), e);
+                return fileName;
+            }
 
             // 执行解析
-            List<String> oldArchiveFileUriList = doParse(unzipPath.toFile(), commonItemMap, parseCadreIdNumberMap);
+            List<String> oldArchiveFileUriList = doParse(archiveFilePath, commonItemMap, parseCadreIdNumberMap);
 
             // 删除旧档案
             oldArchiveFileUriList.stream().map(RuoYiConfig::fileUrlToPath).forEach(item -> {
                 try {
                     FileUtil.del(item);
                 } catch (Exception e) {
-                    log.error("【 档案导入 】文件: {}. 旧档案: {}, 删除异常: {}", unzipDirName, item, e.getMessage(), e);
+                    log.error("【 档案导入 】M文件: {}. 旧档案: {}, 删除异常: {}", fileName, item, e.getMessage(), e);
                 }
             });
 
-            return true;
+            return StrUtil.EMPTY;
         } catch (Exception e) {
-            log.error("【 档案导入 】文件: {}. 档案导入失败: {}", unzipDirName, e.getMessage(), e);
-            return false;
+            log.error("【 档案导入 】M文件: {}. 档案导入失败, 异常: {}", fileName, e.getMessage(), e);
+            return fileName;
         } finally {
-            log.debug("【 档案导入 】文件: {}. 处理完成, 耗时: {}", unzipDirName, stopWatch.getTotalTimeMillis());
-            if (unzipPath != null) {
+            if (FileUtil.exist(archiveFilePath)) {
                 try {
-                    FileUtil.del(unzipPath.toFile());
+                    FileUtil.del(archiveFilePath);
                 } catch (Exception e) {
-                    log.error("【 档案导入 】文件: {}. 解压文件夹删除失败: {}", unzipDirName, e.getMessage(), e);
+                    log.error("【 档案导入 】M文件: {}. 解压文件夹删除失败: {}", fileName, e.getMessage(), e);
                 }
             }
+            log.debug("【 档案导入 】M文件: {}. 处理完成, 耗时: {}", fileName, stopWatch.getTotalTimeMillis());
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public String parse(File file, Map<String, CadreArchiveItem> commonItemMap, Map<String, String> parseCadreIdNumberMap) {
+        StopWatch stopWatch = StopWatch.create(IdUtil.fastSimpleUUID());
+        stopWatch.start();
+
+        File archiveFilePath = null;
+        String fileName = file.getName();
+        log.debug("【 档案导入 】文件: {}. 开始处理.", fileName);
+
+        try {
+            boolean isZipFile = StrUtil.endWith(fileName, ".zip");
+            if (!isZipFile) {
+                archiveFilePath = file;
+            } else {
+                String fileNameNoType = StrUtil.subBefore(fileName, StrUtil.DOT, true);
+                String unzipDirName = fileNameNoType + "-" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_MS_FORMATTER);
+
+                try (InputStream inputStream = FileUtil.getInputStream(file)) {
+                    Path unzipPath = PathUtil.mkdir(Path.of(ArchiveConfig.getUnzipDir() + FileUtil.FILE_SEPARATOR + unzipDirName));
+                    ZipUtil.unzip(inputStream, unzipPath.toFile(), Charset.defaultCharset());
+                    log.debug("【 档案导入 】文件: {}. 解压完成, 解压地址: {}", unzipDirName, unzipPath);
+                    archiveFilePath = unzipPath.toFile();
+                } catch (Exception e) {
+                    log.error("【 档案导入 】文件: {}. 解压异常: {}", fileName, e.getMessage(), e);
+                    return fileName;
+                }
+            }
+
+            // 执行解析
+            List<String> oldArchiveFileUriList = doParse(archiveFilePath, commonItemMap, parseCadreIdNumberMap);
+
+            // 删除旧档案
+            oldArchiveFileUriList.stream().map(RuoYiConfig::fileUrlToPath).forEach(item -> {
+                try {
+                    FileUtil.del(item);
+                } catch (Exception e) {
+                    log.error("【 档案导入 】文件: {}. 旧档案: {}, 删除异常: {}", fileName, item, e.getMessage(), e);
+                }
+            });
+
+            return StrUtil.EMPTY;
+        } catch (Exception e) {
+            log.error("【 档案导入 】文件: {}. 档案导入失败, 异常: {}", fileName, e.getMessage(), e);
+            return fileName;
+        } finally {
+            if (FileUtil.exist(archiveFilePath)) {
+                try {
+                    FileUtil.del(archiveFilePath);
+                } catch (Exception e) {
+                    log.error("【 档案导入 】文件: {}. 解压文件夹删除失败: {}", fileName, e.getMessage(), e);
+                }
+            }
+            log.debug("【 档案导入 】文件: {}. 处理完成, 耗时: {}", fileName, stopWatch.getTotalTimeMillis());
         }
     }
 
