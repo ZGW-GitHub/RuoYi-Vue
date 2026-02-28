@@ -1,10 +1,6 @@
-bus:
+business:
   archive:
     # 档案导入解压目录
     unzip-dir: ${ruoyi.profile}/upload/archive_import_unzip
     # 档案存储目录
     storage-dir: ${ruoyi.profile}/archiveFile/persistence
-
-logging:
-  level:
-    com.ruoyi.business: debug
