@@ -1,0 +1,20 @@
+# 开发环境：连接本机数据库时的配置
+spring:
+  datasource:
+    druid:
+      # 主库数据源
+      master:
+        url: jdbc:mysql://127.0.0.1:64111/cadre_archive?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&rewriteBatchedStatements=true
+        username: root
+        password: HelloMysql
+  data:
+    # redis 配置
+    redis:
+      # 地址
+      host: db.notuptoyou.com
+      # 端口，默认为6379
+      port: 64121
+      # 数据库索引
+      database: 9
+      # 密码
+      password: HelloRedis
