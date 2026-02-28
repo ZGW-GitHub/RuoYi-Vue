@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author Snow
  */
 @Component
-@ConfigurationProperties(prefix = "bus.archive")
+@ConfigurationProperties(prefix = "business.archive")
 public class ArchiveConfig {
 
     @Getter
