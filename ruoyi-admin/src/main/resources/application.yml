@@ -7,8 +7,7 @@ ruoyi:
   # 版权年份
   copyrightYear: 2026
   # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
-  # profile: D:/ruoyi/uploadPath
-  profile: /Users/official/Code/MineCode/profile/RuoYi-Vue
+  profile: D:/ruoyi/uploadPath
   # 获取ip地址开关
   addressEnabled: false
   # 验证码类型 math 数字计算 char 字符验证
@@ -17,7 +16,7 @@ ruoyi:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
-  port: 54321
+  port: 8080
   servlet:
     # 应用的访问路径
     context-path: /
@@ -52,8 +51,6 @@ spring:
   messages:
     # 国际化资源文件路径
     basename: i18n/messages
-  profiles:
-    active: druid
   # 文件上传
   servlet:
     multipart:
@@ -70,13 +67,13 @@ spring:
     # redis 配置
     redis:
       # 地址
-      host: db.notuptoyou.com
+      host: localhost
       # 端口，默认为6379
-      port: 64121
+      port: 6379
       # 数据库索引
       database: 0
       # 密码
-      password: HelloRedis
+      password:
       # 连接超时时间
       timeout: 10s
       lettuce:
