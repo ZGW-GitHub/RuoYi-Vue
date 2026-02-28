@@ -34,6 +34,8 @@ public interface CadreArchiveService extends IService<CadreArchive> {
      */
     CadreArchiveImportResp importArchive(List<MultipartFile> fileList, boolean updateSupport);
 
+    CadreArchiveImportResp importByDeveloper(String fileDir);
+
     /**
      * 删除
      *
@@ -65,7 +67,5 @@ public interface CadreArchiveService extends IService<CadreArchive> {
      * @param deptId  单位ID
      */
     void updateDept(Long id, Long deptId);
-
-
 
 }

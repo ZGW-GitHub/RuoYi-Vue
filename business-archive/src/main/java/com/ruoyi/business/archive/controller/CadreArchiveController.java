@@ -39,6 +39,11 @@ public class CadreArchiveController {
         return cadreArchiveService.importArchive(fileList, updateSupport);
     }
 
+    @GetMapping("importByDeveloper")
+    public CadreArchiveImportResp importByDeveloper(@RequestParam String fileDir) {
+        return cadreArchiveService.importByDeveloper(fileDir);
+    }
+
     @DeleteMapping("delete")
     public void delete(@Valid @RequestBody IdsReq req) {
         cadreArchiveService.delete(req);

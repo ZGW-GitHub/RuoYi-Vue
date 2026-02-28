@@ -2,6 +2,7 @@ package com.ruoyi.business.archive.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,10 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -143,6 +141,31 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
         cadreArchiveFileParseUtil.parseAsync(fileList, itemMap, parseCadreIdNumberMap);
         return cadreArchiveFileParseUtil.waitCompletion(new CadreArchiveImportResp().setTotalCount(fileList.size()));
     }
+
+    @Override
+    public CadreArchiveImportResp importByDeveloper(String fileDir) {
+        boolean fileDirExist = FileUtil.exist(fileDir);
+        if (!fileDirExist) {
+            throw new BizException(BizExceptionCode.MESSAGE, "目录不存在");
+        }
+
+        File[] dirArray = new File(fileDir).listFiles();
+        if (ArrayUtil.isEmpty(dirArray)) {
+            throw new BizException(BizExceptionCode.MESSAGE, "目录下没有文件");
+        }
+        List<File> dirList = Arrays.stream(dirArray).filter(File::isDirectory).toList();
+        if (CollUtil.isEmpty(dirList)) {
+            throw new BizException(BizExceptionCode.MESSAGE, "目录下没有文件");
+        }
+
+        List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(Collections.singletonList(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID), "");
+        Map<String, CadreArchiveItem> itemMap = itemList.stream().collect(Collectors.toMap(CadreArchiveItem::getItemType, Function.identity(), (v1, v2) -> v1));
+
+        Map<String, String> parseCadreIdNumberMap = new ConcurrentHashMap<>(dirList.size());
+        cadreArchiveFileParseUtil.parseAsync(dirList, itemMap, parseCadreIdNumberMap);
+        return cadreArchiveFileParseUtil.waitCompletion(new CadreArchiveImportResp().setTotalCount(dirList.size()));
+    }
+
     /**
      * 导出
      *

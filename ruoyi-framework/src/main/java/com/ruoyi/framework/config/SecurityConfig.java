@@ -104,6 +104,7 @@ public class SecurityConfig
                     // 静态资源，可匿名访问
                     .requestMatchers(HttpMethod.GET, "/", "/static/**", "/assets/**", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                     .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/druid/**").permitAll()
+                    .requestMatchers("/business/archive/cadreArchive/importByDeveloper").permitAll()
                     .requestMatchers("/system/**", "/business/**").authenticated()
                     .requestMatchers(HttpMethod.GET).permitAll()
                     // 除上面外的所有请求全部需要鉴权认证
