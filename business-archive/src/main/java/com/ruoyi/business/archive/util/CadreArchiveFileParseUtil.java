@@ -189,10 +189,10 @@ public class CadreArchiveFileParseUtil {
 
         File archiveFilePath = null;
         String fileName = file.getName();
+        boolean isZipFile = StrUtil.endWith(fileName, ".zip");
         log.debug("【 档案导入 】文件: {}. 开始处理.", fileName);
 
         try {
-            boolean isZipFile = StrUtil.endWith(fileName, ".zip");
             if (!isZipFile) {
                 archiveFilePath = file;
             } else {
@@ -222,11 +222,6 @@ public class CadreArchiveFileParseUtil {
                 }
             });
 
-            return StrUtil.EMPTY;
-        } catch (Exception e) {
-            log.error("【 档案导入 】文件: {}. 档案导入失败, 异常: {}", fileName, e.getMessage(), e);
-            return fileName;
-        } finally {
             if (FileUtil.exist(archiveFilePath)) {
                 try {
                     FileUtil.del(archiveFilePath);
@@ -234,6 +229,12 @@ public class CadreArchiveFileParseUtil {
                     log.error("【 档案导入 】文件: {}. 解压文件夹删除失败: {}", fileName, e.getMessage(), e);
                 }
             }
+
+            return StrUtil.EMPTY;
+        } catch (Exception e) {
+            log.error("【 档案导入 】文件: {}. 档案导入失败, 异常: {}", fileName, e.getMessage(), e);
+            return fileName;
+        } finally {
             log.debug("【 档案导入 】文件: {}. 处理完成, 耗时: {}", fileName, stopWatch.getTotalTimeMillis());
         }
     }
