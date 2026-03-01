@@ -1,6 +1,6 @@
 # 开发环境：默认配置
 ruoyi:
-  profile: /Users/official/ProjectEnv/project-sustained/environment
+  profile: /Users/official/ProjectEnv/project-archive/environment
 server:
   port: 54321
 spring:
