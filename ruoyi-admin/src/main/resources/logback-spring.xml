@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- 日志存放路径 -->
-    <!-- <property name="log.path" value="/Users/official/Code/MineCode/profile/RuoYi-Vue/logs" /> -->
     <springProperty name="log.path" scope="context" source="ruoyi.profile"/>
 
     <!-- 日志输出格式 -->
@@ -33,11 +32,11 @@
 
     <!-- 系统日志输出 -->
     <appender name="file_whole" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.path}/logs/application.log</file>
+        <file>${log.path}/application-logs/application.log</file>
         <!-- 循环政策：基于时间创建日志文件 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- 日志文件名格式 -->
-            <fileNamePattern>${log.path}/logs/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path}/application-logs/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 每个文件最大 10 MB -->
             <maxFileSize>10MB</maxFileSize>
             <!-- 日志最大的历史 60 天 -->
@@ -60,11 +59,11 @@
     </appender>
 
     <appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.path}/logs/application-error.log</file>
+        <file>${log.path}/application-logs/application-error.log</file>
         <!-- 循环政策：基于时间创建日志文件 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- 日志文件名格式 -->
-            <fileNamePattern>${log.path}/logs/application-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path}/application-logs/application-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 每个文件最大 10 MB -->
             <maxFileSize>10MB</maxFileSize>
             <!-- 日志最大的历史 60 天 -->
@@ -96,10 +95,10 @@
 
     <!-- 用户访问日志输出  -->
     <appender name="sys-user" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.path}/logs/sys-user.log</file>
+        <file>${log.path}/application-logs/sys-user.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- 按天回滚 daily -->
-            <fileNamePattern>${log.path}/logs/sys-user.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path}/application-logs/sys-user.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 每个文件最大 10 MB -->
             <maxFileSize>10MB</maxFileSize>
             <!-- 日志最大的历史 60 天 -->
