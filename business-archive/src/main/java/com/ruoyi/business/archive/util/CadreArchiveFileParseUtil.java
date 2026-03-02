@@ -329,7 +329,7 @@ public class CadreArchiveFileParseUtil {
         CadreArchiveItem commonItem = commonItemMap.get(typeNo);
         if (commonItem == null) {
             log.warn("未找到公共档案目录项，类号：{}", typeNo);
-            return Collections.emptyList();
+            commonItem = commonItemMap.get(ArchiveItemTypeEnum.TEN.getCode());
         }
 
         String serialNo = XmlUtil.getElement(recordElement, CadreArchiveFileConstant.SERIAL_NO).getTextContent();

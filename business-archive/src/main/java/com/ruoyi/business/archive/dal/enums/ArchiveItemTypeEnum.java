@@ -12,6 +12,7 @@ public enum ArchiveItemTypeEnum {
 
     FOUR("四", "学历学位、职称、学术、培训等材料"),
     NINE("九", "工资、任免、出国、会议等材料"),
+    TEN("十", "其他材料"),
     ORIGINAL_IMAGE("originalImage", "原始图像"),
     OPTIMIZE_IMAGE("optimizeImage", "优化图像"),
     ;
