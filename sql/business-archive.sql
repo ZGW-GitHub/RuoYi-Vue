@@ -17,8 +17,8 @@ create table bus_cadre_archive
     create_time          datetime     not null default CURRENT_TIMESTAMP comment '创建时间',
     updater              bigint       not null default 0 comment '更新人',
     update_time          datetime     not null default '1000-01-01 00:00:00' comment '更新时间',
-    index inx_idNumber(id_number, deleted),
-    index inx_deptId(dept_id, deleted)
+    index inx_idNumber (id_number, deleted),
+    index inx_deptId (dept_id, deleted)
 ) comment '干部档案表';
 
 drop table if exists bus_cadre_archive_item;
@@ -27,7 +27,7 @@ create table bus_cadre_archive_item
     id                  bigint auto_increment comment 'id' primary key,
     archive_id          bigint                  not null comment '干部档案id',
     item_type           varchar(50)             not null comment '档案类别',
-    item_name           varchar(30)  default '' not null comment '档案名称',
+    item_name           varchar(100) default '' not null comment '档案名称',
     material_date       varchar(30)  default '' not null comment '材料日期',
     material_page_count int          default 0  not null comment '材料页数',
     parent_id           bigint       default 0  not null comment '父id',
@@ -40,7 +40,7 @@ create table bus_cadre_archive_item
     updater             bigint                  not null default 0 comment '更新人',
     update_time         datetime                not null default '1000-01-01 00:00:00' comment '更新时间',
 
-    index inx_archiveId(archive_id, deleted)
+    index inx_archiveId (archive_id, deleted)
 ) comment '档案项表';
 
 drop table if exists bus_cadre_archive_dept;
