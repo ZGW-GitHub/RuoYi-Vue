@@ -1,3 +1,7 @@
 # 生产环境：Windows 特殊配置
 ruoyi:
   profile: D:\busArchive\ziliao
+logging:
+  charset:
+    file: GBK
+    console: GBK

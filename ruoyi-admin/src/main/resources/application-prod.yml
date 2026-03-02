@@ -34,7 +34,3 @@ spring:
 springdoc:
   swagger-ui:
     enabled: false
-logging:
-  charset:
-    file: GBK
-    console: GBK
