@@ -285,6 +285,13 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+            <!-- Business: Official Doc -->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>business-official-doc</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -299,6 +306,7 @@
         <module>business-framework</module>
         <module>business-template</module>
         <module>business-archive</module>
+        <module>business-official-doc</module>
     </modules>
     <packaging>pom</packaging>
 

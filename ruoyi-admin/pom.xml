@@ -59,6 +59,11 @@
             <artifactId>business-archive</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>business-official-doc</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
