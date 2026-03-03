@@ -1,7 +1,7 @@
 package com.ruoyi.business.official.doc.controller;
 
-import com.ruoyi.business.official.doc.controller.domain.DocDeptTypeTreeItem;
-import com.ruoyi.business.official.doc.service.DocDeptTypeService;
+import com.ruoyi.business.official.doc.controller.domain.DocDeptGroupTreeItem;
+import com.ruoyi.business.official.doc.service.DocDeptGroupService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,15 +15,15 @@ import java.util.List;
  * @author Snow
  */
 @RestController
-@RequestMapping("business/official/docDeptType")
-public class DocDeptTypeController {
+@RequestMapping("business/official/docDeptGroup")
+public class DocDeptGroupController {
 
     @Resource
-    private DocDeptTypeService docDeptTypeService;
+    private DocDeptGroupService docDeptGroupService;
 
     @GetMapping("tree")
-    public List<DocDeptTypeTreeItem> tree() {
-        return docDeptTypeService.tree();
+    public List<DocDeptGroupTreeItem> tree() {
+        return docDeptGroupService.tree();
     }
 
 }

@@ -27,9 +27,9 @@ public interface DocDeptService extends IService<DocDept> {
      * 更新机构类型
      *
      * @param id       机构ID
-     * @param deptType 机构类型
+     * @param deptGroup 机构类型
      */
-    void updateType(Long id, Long deptType);
+    void updateGroup(Long id, Long deptGroup);
 
     /**
      * 删除

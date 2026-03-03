@@ -4,10 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.business.common.util.BeanUtil;
 import com.ruoyi.business.common.util.TreeUtil;
-import com.ruoyi.business.official.doc.controller.domain.DocDeptTypeTreeItem;
-import com.ruoyi.business.official.doc.dal.dos.DocDeptType;
-import com.ruoyi.business.official.doc.dal.mapper.DocDeptTypeMapper;
-import com.ruoyi.business.official.doc.service.DocDeptTypeService;
+import com.ruoyi.business.official.doc.controller.domain.DocDeptGroupTreeItem;
+import com.ruoyi.business.official.doc.dal.dos.DocDeptGroup;
+import com.ruoyi.business.official.doc.dal.mapper.DocDeptGroupMapper;
+import com.ruoyi.business.official.doc.service.DocDeptGroupService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -20,27 +20,27 @@ import java.util.List;
  * @author Snow
  */
 @Service
-public class DocDeptTypeServiceImpl extends ServiceImpl<DocDeptTypeMapper, DocDeptType> implements DocDeptTypeService {
+public class DocDeptGroupServiceImpl extends ServiceImpl<DocDeptGroupMapper, DocDeptGroup> implements DocDeptGroupService {
 
     @Resource
-    private DocDeptTypeMapper docDeptTypeMapper;
+    private DocDeptGroupMapper docDeptGroupMapper;
 
     /**
      * 树
      *
-     * @return {@link List }<{@link DocDeptTypeTreeItem }>
+     * @return {@link List }<{@link DocDeptGroupTreeItem }>
      */
     @Override
-    public List<DocDeptTypeTreeItem> tree() {
-        List<DocDeptType> typeList = docDeptTypeMapper.selectAll();
+    public List<DocDeptGroupTreeItem> tree() {
+        List<DocDeptGroup> typeList = docDeptGroupMapper.selectAll();
         if (CollUtil.isEmpty(typeList)) {
             return Collections.emptyList();
         }
 
         // 构建 resp
-        List<DocDeptTypeTreeItem> treeItemList = BeanUtil.mapList(typeList, DocDeptTypeTreeItem.class, (source, target) -> {
+        List<DocDeptGroupTreeItem> treeItemList = BeanUtil.mapList(typeList, DocDeptGroupTreeItem.class, (source, target) -> {
             target.setKey(String.valueOf(source.getId()));
-            target.setTitle(source.getTypeName());
+            target.setTitle(source.getGroupName());
             target.setParentKey(String.valueOf(source.getParentId()));
             target.setAncestorsKey(source.getAncestors());
         });

@@ -9,9 +9,9 @@ import com.ruoyi.business.common.util.BeanUtil;
 import com.ruoyi.business.official.doc.controller.domain.DocDeptPageReq;
 import com.ruoyi.business.official.doc.controller.domain.DocDeptResp;
 import com.ruoyi.business.official.doc.dal.dos.DocDept;
-import com.ruoyi.business.official.doc.dal.dos.DocDeptType;
+import com.ruoyi.business.official.doc.dal.dos.DocDeptGroup;
+import com.ruoyi.business.official.doc.dal.mapper.DocDeptGroupMapper;
 import com.ruoyi.business.official.doc.dal.mapper.DocDeptMapper;
-import com.ruoyi.business.official.doc.dal.mapper.DocDeptTypeMapper;
 import com.ruoyi.business.official.doc.service.DocDeptService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class DocDeptServiceImpl extends ServiceImpl<DocDeptMapper, DocDept> impl
     private DocDeptMapper docDeptMapper;
 
     @Resource
-    private DocDeptTypeMapper docDeptTypeMapper;
+    private DocDeptGroupMapper docDeptGroupMapper;
 
     /**
      * 页面
@@ -49,20 +49,20 @@ public class DocDeptServiceImpl extends ServiceImpl<DocDeptMapper, DocDept> impl
             return pageResp;
         }
 
-        List<Long> deptTypeList = pageResp.getRecords().stream().map(DocDept::getDeptType).distinct().toList();
-        if (CollUtil.isEmpty(deptTypeList)) {
+        List<Long> deptGroupList = pageResp.getRecords().stream().map(DocDept::getDeptGroup).distinct().toList();
+        if (CollUtil.isEmpty(deptGroupList)) {
             return pageResp;
         }
 
-        List<DocDeptType> deptTypeInfoList = docDeptTypeMapper.selectByIds(deptTypeList);
-        Map<Long, DocDeptType> deptTypeMap = deptTypeInfoList.stream().collect(Collectors.toMap(DocDeptType::getId, Function.identity()));
+        List<DocDeptGroup> deptGroupInfoList = docDeptGroupMapper.selectByIds(deptGroupList);
+        Map<Long, DocDeptGroup> deptGroupMap = deptGroupInfoList.stream().collect(Collectors.toMap(DocDeptGroup::getId, Function.identity()));
         pageResp.getRecords().forEach(resp -> {
-            if (resp.getDeptType() == null) {
+            if (resp.getDeptGroup() == null) {
                 return;
             }
 
-            DocDeptType deptTypeInfo = deptTypeMap.get(resp.getDeptType());
-            resp.setDeptTypeInfo(deptTypeInfo);
+            DocDeptGroup deptGroupInfo = deptGroupMap.get(resp.getDeptGroup());
+            resp.setDeptGroupInfo(deptGroupInfo);
         });
 
         return pageResp;
@@ -73,13 +73,13 @@ public class DocDeptServiceImpl extends ServiceImpl<DocDeptMapper, DocDept> impl
      * 更新机构类型
      *
      * @param id       机构ID
-     * @param deptType 机构类型
+     * @param deptGroup 机构类型
      */
     @Override
-    public void updateType(Long id, Long deptType) {
+    public void updateGroup(Long id, Long deptGroup) {
         DocDept docDept = new DocDept();
         docDept.setId(id);
-        docDept.setDeptType(deptType);
+        docDept.setDeptGroup(deptGroup);
         docDeptMapper.updateById(docDept);
     }
 

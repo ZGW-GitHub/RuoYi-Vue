@@ -8,13 +8,13 @@
         <if test="req.deptName != null and req.deptName != ''">
             AND (dept_name LIKE CONCAT('%', #{req.deptName}, '%') OR official_name LIKE CONCAT('%', #{req.deptName}, '%'))
         </if>
-        <if test="req.deptType != null">
-            AND dept_type = #{req.deptType}
+        <if test="req.deptGroup != null">
+            AND dept_group = #{req.deptGroup}
         </if>
         <if test="req.deptLevel != null and req.deptLevel != ''">
             AND dept_level = #{req.deptLevel}
         </if>
-        ORDER BY dept_type, sort, create_time DESC
+        ORDER BY dept_group, sort, create_time DESC
     </select>
 
 </mapper>

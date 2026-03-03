@@ -27,7 +27,7 @@ public class DocDept extends BaseDO {
     private String officialName;
 
     /** 机构类型 */
-    private Long deptType;
+    private Long deptGroup;
 
     /** 机构级别(正副厅/本专科) */
     private String deptLevel;

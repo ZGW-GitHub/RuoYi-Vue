@@ -27,9 +27,9 @@ public class DocDeptController {
         return docDeptService.page(req);
     }
 
-    @PutMapping("updateType")
-    public void updateType(@RequestParam Long id, @RequestParam @NotNull Long deptType) {
-        docDeptService.updateType(id, deptType);
+    @PutMapping("updateGroup")
+    public void updateGroup(@RequestParam Long id, @RequestParam @NotNull Long deptGroup) {
+        docDeptService.updateGroup(id, deptGroup);
     }
 
     @DeleteMapping("delete")

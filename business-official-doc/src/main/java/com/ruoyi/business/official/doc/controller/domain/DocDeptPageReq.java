@@ -13,7 +13,7 @@ public class DocDeptPageReq extends PageReq {
 
     private String deptName;
 
-    private Long deptType;
+    private Long deptGroup;
 
     private String deptLevel;
 

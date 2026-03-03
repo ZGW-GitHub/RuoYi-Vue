@@ -8,20 +8,20 @@ import lombok.EqualsAndHashCode;
 import java.io.Serial;
 
 /**
- * 机构类型表 bus_doc_dept_type
+ * 机构类型表 bus_doc_dept_group
  * 
  * @author Snow
  */
 @Data
-@TableName("bus_doc_dept_type")
+@TableName("bus_doc_dept_group")
 @EqualsAndHashCode(callSuper = true)
-public class DocDeptType extends BaseDO {
+public class DocDeptGroup extends BaseDO {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     /** 类型名称 */
-    private String typeName;
+    private String groupName;
 
     /** 父id */
     private Long parentId;

@@ -1,7 +1,7 @@
 package com.ruoyi.business.official.doc.dal.mapper;
 
 import com.ruoyi.business.common.mybatis.mapper.BaseMapper;
-import com.ruoyi.business.official.doc.dal.dos.DocDeptType;
+import com.ruoyi.business.official.doc.dal.dos.DocDeptGroup;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -12,11 +12,11 @@ import java.util.List;
  * @author Snow
  */
 @Mapper
-public interface DocDeptTypeMapper extends BaseMapper<DocDeptType> {
+public interface DocDeptGroupMapper extends BaseMapper<DocDeptGroup> {
 
-    default List<DocDeptType> selectAll() {
+    default List<DocDeptGroup> selectAll() {
         return lambdaChainQueryWrapper()
-                .orderByAsc(DocDeptType::getParentId, DocDeptType::getSort)
+                .orderByAsc(DocDeptGroup::getParentId, DocDeptGroup::getSort)
                 .list();
     }
 

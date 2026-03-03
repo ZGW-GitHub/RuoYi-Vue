@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DocDeptTypeTreeItem extends TreeDTO<DocDeptTypeTreeItem> {
+public class DocDeptGroupTreeItem extends TreeDTO<DocDeptGroupTreeItem> {
 
     /** 类型名称 */
-    private String typeName;
+    private String groupName;
 
     /** 父id */
     private Long parentId;
