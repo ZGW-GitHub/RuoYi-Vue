@@ -15,3 +15,5 @@ logging:
   charset:
     file: UTF-8
     console: UTF-8
+  level:
+    com.ruoyi.business.framework: info
