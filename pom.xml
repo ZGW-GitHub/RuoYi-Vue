@@ -70,6 +70,12 @@
                 <groupId>nl.basjes.parse.useragent</groupId>
                 <artifactId>yauaa</artifactId>
                 <version>${yauaa.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-collections4</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- ruoyi-springboot3 / mybatis-plus 配置 -->
