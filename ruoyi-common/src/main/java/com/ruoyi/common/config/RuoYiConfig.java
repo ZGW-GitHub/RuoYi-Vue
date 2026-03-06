@@ -1,6 +1,5 @@
 package com.ruoyi.common.config;
 
-import com.ruoyi.common.constant.Constants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -119,14 +118,6 @@ public class RuoYiConfig
     public static String getUploadPath()
     {
         return getProfile() + "/upload";
-    }
-
-    public static String fileUrlToPath(String fileUrl) {
-        return fileUrl.replace(Constants.RESOURCE_PREFIX, getProfile());
-    }
-
-    public static String filePathToUrl(String filePath) {
-        return filePath.replace(getProfile(), Constants.RESOURCE_PREFIX);
     }
 
 }
