@@ -11,6 +11,10 @@ spring:
       max-file-size: 1024MB
       # 设置总上传的文件大小
       max-request-size: 10240MB
+# token配置
+token:
+  # 令牌有效期（12小时）
+  expireTime: 720
 logging:
   charset:
     file: UTF-8

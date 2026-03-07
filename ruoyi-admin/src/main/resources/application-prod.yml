@@ -31,6 +31,10 @@ spring:
     restart:
       # 热部署开关
       enabled: false
+# token配置
+token:
+  # 令牌有效期（1小时）
+  expireTime: 60
 springdoc:
   swagger-ui:
     enabled: false
