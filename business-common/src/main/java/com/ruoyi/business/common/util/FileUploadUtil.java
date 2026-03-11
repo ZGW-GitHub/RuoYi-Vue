@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Snow
  */
 @Slf4j
-public class UploadFileUtil {
+public class FileUploadUtil {
 
     public static String fileUrlToPath(String fileUrl) {
         return fileUrl.replace(Constants.RESOURCE_PREFIX, RuoYiConfig.getProfile());
