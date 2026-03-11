@@ -33,8 +33,8 @@ public class CadreArchiveDeptController {
      * @param req 保存请求
      */
     @PostMapping("save")
-    public void save(@Valid @RequestBody CadreArchiveDeptSaveReq req) {
-        cadreArchiveDeptService.save(req);
+    public Boolean save(@Valid @RequestBody CadreArchiveDeptSaveReq req) {
+        return cadreArchiveDeptService.save(req);
     }
 
     /**
@@ -43,8 +43,8 @@ public class CadreArchiveDeptController {
      * @param req 删除请求
      */
     @DeleteMapping("delete")
-    public void delete(@Valid @RequestBody IdsReq req) {
-        cadreArchiveDeptService.delete(req);
+    public Boolean delete(@Valid @RequestBody IdsReq req) {
+        return cadreArchiveDeptService.delete(req);
     }
 
 }

@@ -27,13 +27,13 @@ public interface CadreArchiveDeptService extends IService<CadreArchiveDept> {
      *
      * @param req 保存请求
      */
-    void save(CadreArchiveDeptSaveReq req);
+    Boolean save(CadreArchiveDeptSaveReq req);
 
     /**
      * 批量删除部门
      *
      * @param req req
      */
-    void delete(IdsReq req);
+    Boolean delete(IdsReq req);
 
 }

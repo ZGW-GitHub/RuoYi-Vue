@@ -105,15 +105,15 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void save(CadreArchiveDeptSaveReq req) {
+    public Boolean save(CadreArchiveDeptSaveReq req) {
         if (req.getId() == null) {
-            insert(req);
+            return insert(req);
         } else {
-            update(req);
+            return update(req);
         }
     }
 
-    private void insert(CadreArchiveDeptSaveReq req) {
+    private Boolean insert(CadreArchiveDeptSaveReq req) {
         Long reqParentId = req.getParentId();
 
         // 创建
@@ -128,9 +128,10 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
 
         // 执行数据库
         cadreArchiveDeptMapper.insert(dept);
+        return true;
     }
 
-    private void update(CadreArchiveDeptSaveReq req) {
+    private Boolean update(CadreArchiveDeptSaveReq req) {
         Long reqId = req.getId();
         Long reqParentId = req.getParentId();
 
@@ -171,6 +172,7 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
 
         // 执行数据库
         cadreArchiveDeptMapper.updateById(dept);
+        return true;
     }
 
     /**
@@ -180,7 +182,7 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void delete(IdsReq req) {
+    public Boolean delete(IdsReq req) {
         List<Long> idList = req.ids();
 
         // 统计档案数
@@ -209,6 +211,7 @@ public class CadreArchiveDeptServiceImpl extends ServiceImpl<CadreArchiveDeptMap
         });
 
         cadreArchiveMapper.updateDeptId(idList);
+        return true;
     }
 
     /**

@@ -21,6 +21,7 @@ import com.ruoyi.business.common.domain.req.IdsReq;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import com.ruoyi.business.common.mapper.SysMapper;
 import com.ruoyi.business.common.util.BeanUtil;
+import com.ruoyi.business.common.util.FileUploadUtil;
 import com.ruoyi.business.common.web.exception.BizException;
 import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -111,7 +112,7 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
         cadreArchiveService.doDelete(req);
 
         // 删除档案文件
-        cadreArchiveList.stream().map(CadreArchive::getArchiveFilePath).map(RuoYiConfig::fileUrlToPath).forEach(item -> {
+        cadreArchiveList.stream().map(CadreArchive::getArchiveFilePath).map(FileUploadUtil::fileUrlToPath).forEach(item -> {
             try {
                 FileUtil.del(item);
             } catch (Exception e) {
@@ -206,7 +207,7 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
                 }
 
                 // 转换为磁盘路径
-                String diskPath = RuoYiConfig.fileUrlToPath(archiveFilePath);
+                String diskPath = FileUploadUtil.fileUrlToPath(archiveFilePath);
                 File archiveDir = new File(diskPath);
 
                 if (!archiveDir.exists() || !archiveDir.isDirectory()) {

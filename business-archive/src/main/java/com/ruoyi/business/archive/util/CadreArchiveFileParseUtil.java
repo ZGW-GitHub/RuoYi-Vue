@@ -23,10 +23,10 @@ import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveItemService;
 import com.ruoyi.business.common.enums.GenderEnum;
 import com.ruoyi.business.common.enums.YNEnum;
+import com.ruoyi.business.common.util.FileUploadUtil;
 import com.ruoyi.business.common.web.exception.BizException;
 import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
 import com.ruoyi.business.framework.web.component.concurrent.TraceThreadPoolExecutor;
-import com.ruoyi.common.config.RuoYiConfig;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
@@ -158,7 +158,7 @@ public class CadreArchiveFileParseUtil {
             List<String> oldArchiveFileUriList = doParse(archiveFilePath, commonItemMap, parseCadreIdNumberMap);
 
             // 删除旧档案
-            oldArchiveFileUriList.stream().map(RuoYiConfig::fileUrlToPath).forEach(item -> {
+            oldArchiveFileUriList.stream().map(FileUploadUtil::fileUrlToPath).forEach(item -> {
                 try {
                     FileUtil.del(item);
                 } catch (Exception e) {
@@ -214,7 +214,7 @@ public class CadreArchiveFileParseUtil {
             List<String> oldArchiveFileUriList = doParse(archiveFilePath, commonItemMap, parseCadreIdNumberMap);
 
             // 删除旧档案
-            oldArchiveFileUriList.stream().map(RuoYiConfig::fileUrlToPath).forEach(item -> {
+            oldArchiveFileUriList.stream().map(FileUploadUtil::fileUrlToPath).forEach(item -> {
                 try {
                     FileUtil.del(item);
                 } catch (Exception e) {
@@ -291,7 +291,7 @@ public class CadreArchiveFileParseUtil {
 
         // 处理干部信息
         CadreArchive cadreArchive = processCadresInfo(personInfoElement, idNumber, cadreName);
-        cadreArchive.setArchiveFilePath(RuoYiConfig.filePathToUrl(archiveStoragePath.getAbsolutePath()));
+        cadreArchive.setArchiveFilePath(FileUploadUtil.filePathToUrl(archiveStoragePath.getAbsolutePath()));
         cadreArchiveMapper.insert(cadreArchive);
 
         // 档案条目信息
