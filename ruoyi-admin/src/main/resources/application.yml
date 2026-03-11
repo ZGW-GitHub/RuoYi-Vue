@@ -113,6 +113,9 @@ mybatis-plus:
   mapperLocations: classpath*:mapper/**/*Mapper.xml
   # 加载全局的配置文件
   configLocation: classpath:mybatis/mybatis-config.xml
+  global-config:
+    db-config:
+      update-strategy: always
 
 # PageHelper分页插件
 pagehelper:
