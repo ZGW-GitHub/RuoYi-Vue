@@ -1,6 +1,5 @@
 package com.ruoyi.business.common.util;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
 import com.ruoyi.business.common.web.exception.BizException;
 import com.ruoyi.business.common.web.exception.code.BizExceptionCode;
@@ -10,8 +9,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 /**
  * @author Snow
@@ -35,7 +32,6 @@ public class UploadFileUtil {
 
         String fileType = StrUtil.subAfter(originalFilename, StrUtil.DOT, true);
         String fileName = StrUtil.subBefore(originalFilename, StrUtil.DOT, true);
-        fileName = StrUtil.format("{}-{}", LocalDateTime.now().format(DatePattern.PURE_DATETIME_MS_FORMATTER), fileName);
         return new FileInfo().setFileName(fileName).setFileType(fileType);
     }
 
