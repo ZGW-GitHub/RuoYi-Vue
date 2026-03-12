@@ -14,6 +14,7 @@ import com.ruoyi.business.archive.dal.mapper.CadreArchiveDeptMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveItemMapper;
 import com.ruoyi.business.archive.dal.mapper.CadreArchiveMapper;
 import com.ruoyi.business.archive.service.CadreArchiveItemService;
+import com.ruoyi.business.archive.service.ConsumerMonitorService;
 import com.ruoyi.business.archive.util.CadreArchiveFileParseUtil;
 import com.ruoyi.business.common.domain.resp.PageResp;
 import com.ruoyi.business.common.util.BeanUtil;
@@ -30,6 +31,9 @@ import java.util.*;
  */
 @Service
 public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMapper, CadreArchiveItem> implements CadreArchiveItemService {
+
+    @Resource
+    private ConsumerMonitorService consumerMonitorService;
 
     @Resource
     private CadreArchiveMapper cadreArchiveMapper;
@@ -121,6 +125,8 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         cadreArchiveResp.setIdNumber(cadreArchive.getIdNumber());
         cadreArchiveResp.setCreateTime(cadreArchive.getCreateTime());
         cadreArchiveResp.setDeptInfo(cadreArchiveDept);
+
+        consumerMonitorService.incrementDictValue(ConsumerMonitorService.CONFIG_KEY_ARCHIVE_VIEW_COUNT);
 
         // 返回
         return new CadreArchiveItemTreeResp()
