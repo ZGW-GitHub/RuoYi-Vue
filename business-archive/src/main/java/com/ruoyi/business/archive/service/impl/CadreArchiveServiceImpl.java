@@ -134,7 +134,7 @@ public class CadreArchiveServiceImpl extends ServiceImpl<CadreArchiveMapper, Cad
      * @param updateSupport 更新支持
      */
     @Override
-    public CadreArchiveImportResp importArchive(List<MultipartFile> fileList, boolean updateSupport) {
+    public CadreArchiveImportResp importArchive(List<MultipartFile> fileList, Boolean updateSupport) {
         List<CadreArchiveItem> itemList = cadreArchiveItemMapper.listByArchiveId(Collections.singletonList(CadreArchiveFileParseUtil.CADRE_COMMON_ARCHIVE_ITEM_ARCHIVE_ID), "");
         Map<String, CadreArchiveItem> itemMap = itemList.stream().collect(Collectors.toMap(CadreArchiveItem::getItemType, Function.identity(), (v1, v2) -> v1));
 

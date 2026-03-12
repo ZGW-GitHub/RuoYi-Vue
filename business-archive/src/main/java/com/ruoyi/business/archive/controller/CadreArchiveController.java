@@ -35,7 +35,8 @@ public class CadreArchiveController {
     }
 
     @PostMapping("import")
-    public CadreArchiveImportResp importArchive(List<MultipartFile> fileList, boolean updateSupport) {
+    public CadreArchiveImportResp importArchive(List<MultipartFile> fileList,
+                                                @RequestParam(required = false) Boolean updateSupport) {
         return cadreArchiveService.importArchive(fileList, updateSupport);
     }
 

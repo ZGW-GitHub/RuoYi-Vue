@@ -32,7 +32,7 @@ public interface CadreArchiveService extends IService<CadreArchive> {
      * @param fileList      文件列表
      * @param updateSupport 更新支持
      */
-    CadreArchiveImportResp importArchive(List<MultipartFile> fileList, boolean updateSupport);
+    CadreArchiveImportResp importArchive(List<MultipartFile> fileList, Boolean updateSupport);
 
     CadreArchiveImportResp importByDeveloper(String fileDir);
 
