@@ -126,7 +126,7 @@ public class CadreArchiveItemServiceImpl extends ServiceImpl<CadreArchiveItemMap
         cadreArchiveResp.setCreateTime(cadreArchive.getCreateTime());
         cadreArchiveResp.setDeptInfo(cadreArchiveDept);
 
-        consumerMonitorService.incrementDictValue(ConsumerMonitorService.CONFIG_KEY_ARCHIVE_VIEW_COUNT);
+        consumerMonitorService.decrementDictValue(ConsumerMonitorService.CONFIG_KEY_ARCHIVE_VIEW_COUNT);
 
         // 返回
         return new CadreArchiveItemTreeResp()
