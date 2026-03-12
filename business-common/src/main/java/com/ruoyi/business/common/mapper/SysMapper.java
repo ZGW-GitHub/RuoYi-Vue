@@ -14,4 +14,10 @@ public interface SysMapper {
 
     List<DeptDTO> selectDeptById(@Param("idList") List<Long> idList);
 
+    void incrementDictValue(@Param("dictType") String dictType, @Param("dictLabel") String dictLabel);
+
+    void decrementDictValue(@Param("dictType") String dictType, @Param("dictLabel") String dictLabel);
+
+    String getDictValue(@Param("dictType") String dictType, @Param("dictLabel") String dictLabel);
+
 }
